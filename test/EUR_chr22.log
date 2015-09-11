@@ -1,0 +1,50 @@
+Beginning analysis at Thu Sep 10 10:23:49 2015
+Loading fam file ../data/1KG/phase3/BED/EUR.chr22.fam
+Loading bim file ../data/1KG/phase3/BED/EUR.chr22.bim
+bed file is open ../data/1KG/phase3/BED/EUR.chr22.bed
+Beginning analysis at Thu Sep 10 10:25:10 2015
+Loading fam file ../data/1KG/phase3/BED/EUR.chr22.fam
+Loading bim file ../data/1KG/phase3/BED/EUR.chr22.bim
+bed file is open ../data/1KG/phase3/BED/EUR.chr22.bed
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 101, in main
+    scores = compute.covariance_scores_1_pop(args)
+  File "my_tool/my_tool/compute.py", line 41, in __init__
+    snps_1 = (af1>args.maf)&(af1<1-args.maf) #
+TypeError: unsupported operand type(s) for -: 'int' and 'str'
+
+Beginning analysis at Thu Sep 10 10:25:47 2015
+Loading fam file ../data/1KG/phase3/BED/EUR.chr22.fam
+Loading bim file ../data/1KG/phase3/BED/EUR.chr22.bim
+bed file is open ../data/1KG/phase3/BED/EUR.chr22.bed
+Analysis finished at Thu Sep 10 10:26:49 2015
+Total time elapsed: 62.48
+Beginning analysis at Thu Sep 10 10:32:21 2015
+Loading fam file my_tool/test/EUR.chr22.fam
+Loading bim file my_tool/test/EUR.chr22.bim
+bed file is open my_tool/test/EUR.chr22.bed
+Loading fam file my_tool/test/EAS.chr22.fam
+Loading bim file my_tool/test/EAS.chr22.bim
+bed file is open my_tool/test/EAS.chr22.bed
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 107, in main
+    scores = compute.covariance_scores_2_pop(args)
+  File "my_tool/my_tool/compute.py", line 148, in __init__
+    self.af1 = af1[bed_1_index] #
+IndexError: index 59662 is out of bounds for axis 1 with size 59662
+
+Beginning analysis at Thu Sep 10 10:39:24 2015
+Loading fam file my_tool/test/EUR.chr22.fam
+Loading bim file my_tool/test/EUR.chr22.bim
+bed file is open my_tool/test/EUR.chr22.bed
+Loading fam file my_tool/test/EAS.chr22.fam
+Loading bim file my_tool/test/EAS.chr22.bim
+bed file is open my_tool/test/EAS.chr22.bed
+Analysis finished at Thu Sep 10 10:42:52 2015
+Total time elapsed: 207.12
+Beginning analysis at Thu Sep 10 10:46:38 2015
+Loading fam file ../data/1KG/phase3/BED/EUR.chr22.fam
+Loading bim file ../data/1KG/phase3/BED/EUR.chr22.bim
+bed file is open ../data/1KG/phase3/BED/EUR.chr22.bed
+Analysis finished at Thu Sep 10 10:47:41 2015
+Total time elapsed: 63.71

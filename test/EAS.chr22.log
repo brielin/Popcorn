@@ -1,0 +1,23 @@
+PLINK v1.90b2n 64-bit (2 Nov 2014) 
+5 arguments: --make-bed --out BED/EAS.chr22 --tfile BED/EAS.chr22
+Hostname: mcb
+Working directory: /home/brielin/data/1KG/phase3
+Start time: Sun May 31 15:14:23 2015
+
+Random number seed: 1433110463
+322472 MB RAM detected; reserving 161236 MB for main workspace.
+Processing .tped file.
+BED/EAS.chr22-temporary.bed + BED/EAS.chr22-temporary.bim +
+BED/EAS.chr22-temporary.fam written.
+106428 variants loaded from .bim file.
+504 people (0 males, 0 females, 504 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to BED/EAS.chr22.nosex .
+Using 1 thread (no multithreaded calculations invoked).
+Before main variant filters, 504 founders and 0 nonfounders present.
+Calculating allele frequencies... done.
+106428 variants and 504 people pass filters and QC.
+Note: No phenotypes present.
+--make-bed to BED/EAS.chr22.bed + BED/EAS.chr22.bim + BED/EAS.chr22.fam ...
+done.
+
+End time: Sun May 31 15:14:26 2015
