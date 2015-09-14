@@ -49,9 +49,10 @@ def main(args):
     parser_fit.add_argument('--sfile1',help='Specify summary statistics file')
     parser_fit.add_argument('--sfile2',help='Specify summary statistics file')
     parser_fit.add_argument('--cfile',help='Specify covariance scores file')
-    parser_fit.add_argument('--gamma',help='Specify the step size for MLE.'
-                            ' Unless you have convergence issues use default',
-                            default=0.1)
+    parser_fit.add_argument('--Ns',help='Either 1) the number'
+                            ' of overlapping samples or 2) proportion of'
+                            ' overlapping samples or a 3) text file containing'
+                            ' the number of overlapping samples per SNP ID.')
     parser_fit.add_argument('--niter',help='Specify the max iterations for MLE.'
                             ' Unless you have convergence issues use default',
                             default=1000,type=int)
@@ -76,11 +77,11 @@ def main(args):
             if (args.sfile is not None) \
                     ^ (args.sfile1 is not None) \
                     and (args.sfile2 is None):
-                # Single trait in one population
+                print("Analyzing a single trait in one population")
                 if args.sfile is None: args.sfile = args.sfile1
                 scores = pd.read_table(args.cfile,header=None,
                                        names=['chr','pos','id','a1','a2','af',
-                                              'score'])
+                                               'score'])
                 scores.index = scores['id']
                 data = sumstats.sumstats_1_trait(scores,args)
                 res = fit.fit_h1(data.data,args)
@@ -91,26 +92,29 @@ def main(args):
                 with open(args.cfile,'r') as f:
                     ncols = len(f.readline().strip().split())
                 if ncols == 7:
-                    # Pair of traits in one population
+                    print("Analyzing a pair of traits in one population")
                     scores = pd.read_table(args.cfile,header=None,
                                            names=['chr','pos','id','a1','a2',
                                                   'af','score'],sep='\t')
-                    scores.index = scores['id']
-                    data = sumstats.sumstats_2_trait(scores,args)
-                elif ncols == 10: #ToDo: figure out which exception
-                    # Two populations
+                elif ncols == 10:
+                    print("Analyzing a pair of traits in two populations")
                     scores = pd.read_table(args.cfile,header=None,
                                            names=['chr','pos','id','a1','a2',
                                                   'af1','af2','score1','score2',
                                                   'scoreX'])
-                    scores.index = scores['id']
-                    data = sumstats.sumstats_2_trait(scores,args)
-                    res = fit.fit_pg(data.data,args)
                 else:
                     raise ValueError('Cscores file not understood. Did you'
                                      ' compute them with this program?')
+                scores.index = scores['id']
+                data = sumstats.sumstats_2_trait(scores,args)
+                if data.overlap:
+                    res = fit.fit_pg_pe(data.data,args)
+                else:
+                    res = fit.fit_pg(data.data,args)
             else:
                 raise ValueError('Must provide bfile or bfile1, or bfile1 and 2')
+            print(res.res.to_string())
+            res.write(args.out)
         elif args.mode == 'compute':
             if (args.bfile is not None) \
                     ^ (args.bfile1 is not None) \

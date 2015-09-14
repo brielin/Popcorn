@@ -5059,3 +5059,493 @@ Beginning analysis at Fri Sep 11 13:25:21 2015
 Analysis finished at Fri Sep 11 13:25:23 2015
 Total time elapsed: 1.91
 Beginning analysis at Fri Sep 11 13:33:23 2015
+Analysis finished at Fri Sep 11 14:35:42 2015
+Total time elapsed: 3739.54
+Beginning analysis at Fri Sep 11 14:36:42 2015
+Analysis finished at Fri Sep 11 14:44:29 2015
+Total time elapsed: 467.46
+Beginning analysis at Fri Sep 11 14:44:43 2015
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 100, in main
+    data = sumstats.sumstats_2_trait(scores,args)
+  File "my_tool/my_tool/sumstats.py", line 176, in __init__
+    warning.warn('Sample overlap not specified,'
+NameError: global name 'warning' is not defined
+
+Beginning analysis at Fri Sep 11 14:45:00 2015
+Analysis finished at Fri Sep 11 14:45:01 2015
+Total time elapsed: 1.31
+Beginning analysis at Fri Sep 11 14:46:45 2015
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 101, in main
+    print( data.head() )
+AttributeError: 'sumstats_2_trait' object has no attribute 'head'
+
+Beginning analysis at Fri Sep 11 14:46:54 2015
+           chr       pos         id a1 a2        af       score      N1  \
+id                                                                        
+rs1000427   22  36890105  rs1000427  A  G  0.886680   71.840031  251421   
+rs1000470   22  24026845  rs1000470  A  C  0.892644   91.736555  251010   
+rs1000539   22  20202729  rs1000539  A  G  0.724652   34.434655  228352   
+rs1000815   22  26831077  rs1000815  A  G  0.566600   91.940425  251725   
+rs10009     22  22051709    rs10009  G  A  0.608350  109.190616  252079   
+
+               N2        Z1        Z2  Ns  
+id                                         
+rs1000427  234053  1.787230 -1.787230   0  
+rs1000470  233638 -0.340000 -0.340000   0  
+rs1000539  210781 -0.972222 -0.972222   0  
+rs1000815  233697  2.241380 -2.241380   0  
+rs10009    233912  3.666670  3.666670   0  
+Analysis finished at Fri Sep 11 14:46:56 2015
+Total time elapsed: 1.46
+Beginning analysis at Fri Sep 11 14:47:04 2015
+           chr       pos         id a1 a2        af       score      N1  \
+id                                                                        
+rs1000427   22  36890105  rs1000427  A  G  0.886680   71.840031  251421   
+rs1000470   22  24026845  rs1000470  A  C  0.892644   91.736555  251010   
+rs1000539   22  20202729  rs1000539  A  G  0.724652   34.434655  228352   
+rs1000815   22  26831077  rs1000815  A  G  0.566600   91.940425  251725   
+rs10009     22  22051709    rs10009  G  A  0.608350  109.190616  252079   
+
+               N2        Z1        Z2        Ns  
+id                                               
+rs1000427  234053  1.787230 -1.787230  12571.05  
+rs1000470  233638 -0.340000 -0.340000  12550.50  
+rs1000539  210781 -0.972222 -0.972222  11417.60  
+rs1000815  233697  2.241380 -2.241380  12586.25  
+rs10009    233912  3.666670  3.666670  12603.95  
+Analysis finished at Fri Sep 11 14:47:05 2015
+Total time elapsed: 1.45
+Beginning analysis at Fri Sep 11 14:47:32 2015
+           chr       pos         id a1 a2        af       score      N1  \
+id                                                                        
+rs1000427   22  36890105  rs1000427  A  G  0.886680   71.840031  251421   
+rs1000470   22  24026845  rs1000470  A  C  0.892644   91.736555  251010   
+rs1000539   22  20202729  rs1000539  A  G  0.724652   34.434655  228352   
+rs1000815   22  26831077  rs1000815  A  G  0.566600   91.940425  251725   
+rs10009     22  22051709    rs10009  G  A  0.608350  109.190616  252079   
+
+               N2        Z1        Z2  Ns  
+id                                         
+rs1000427  234053  1.787230 -1.787230  15  
+rs1000470  233638 -0.340000 -0.340000  15  
+rs1000539  210781 -0.972222 -0.972222  15  
+rs1000815  233697  2.241380 -2.241380  15  
+rs10009    233912  3.666670  3.666670  15  
+Analysis finished at Fri Sep 11 14:47:33 2015
+Total time elapsed: 1.47
+Beginning analysis at Fri Sep 11 14:48:14 2015
+           chr       pos         id a1 a2        af       score      N1  \
+id                                                                        
+rs1000427   22  36890105  rs1000427  A  G  0.886680   71.840031  251421   
+rs1000470   22  24026845  rs1000470  A  C  0.892644   91.736555  251010   
+rs1000539   22  20202729  rs1000539  A  G  0.724652   34.434655  228352   
+rs1000815   22  26831077  rs1000815  A  G  0.566600   91.940425  251725   
+rs10009     22  22051709    rs10009  G  A  0.608350  109.190616  252079   
+
+               N2        Z1        Z2       Ns  
+id                                              
+rs1000427  234053  1.787230 -1.787230  25142.1  
+rs1000470  233638 -0.340000 -0.340000  25101.0  
+rs1000539  210781 -0.972222 -0.972222  22835.2  
+rs1000815  233697  2.241380 -2.241380  25172.5  
+rs10009    233912  3.666670  3.666670  25207.9  
+Analysis finished at Fri Sep 11 14:48:15 2015
+Total time elapsed: 1.45
+Beginning analysis at Fri Sep 11 14:59:04 2015
+Analysis finished at Fri Sep 11 15:27:21 2015
+Total time elapsed: 1697.52
+Beginning analysis at Fri Sep 11 15:29:22 2015
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 109, in main
+    data = sumstats.sumstats_2_trait(scores,args)
+  File "my_tool/my_tool/sumstats.py", line 179, in __init__
+    self.overlap = np.all(data1['Ns'])
+  File "/home/brielin/canopy/lib/python2.7/site-packages/pandas/core/frame.py", line 1797, in __getitem__
+    return self._getitem_column(key)
+  File "/home/brielin/canopy/lib/python2.7/site-packages/pandas/core/frame.py", line 1804, in _getitem_column
+    return self._get_item_cache(key)
+  File "/home/brielin/canopy/lib/python2.7/site-packages/pandas/core/generic.py", line 1084, in _get_item_cache
+    values = self._data.get(item)
+  File "/home/brielin/canopy/lib/python2.7/site-packages/pandas/core/internals.py", line 2851, in get
+    loc = self.items.get_loc(item)
+  File "/home/brielin/canopy/lib/python2.7/site-packages/pandas/core/index.py", line 1572, in get_loc
+    return self._engine.get_loc(_values_from_object(key))
+  File "pandas/index.pyx", line 134, in pandas.index.IndexEngine.get_loc (pandas/index.c:3824)
+  File "pandas/index.pyx", line 154, in pandas.index.IndexEngine.get_loc (pandas/index.c:3704)
+  File "pandas/hashtable.pyx", line 686, in pandas.hashtable.PyObjectHashTable.get_item (pandas/hashtable.c:12280)
+  File "pandas/hashtable.pyx", line 694, in pandas.hashtable.PyObjectHashTable.get_item (pandas/hashtable.c:12231)
+KeyError: 'Ns'
+
+Beginning analysis at Fri Sep 11 15:30:33 2015
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 109, in main
+    data = sumstats.sumstats_2_trait(scores,args)
+  File "my_tool/my_tool/sumstats.py", line 180, in __init__
+    if self.two_pops and self.overlap:
+  File "/home/brielin/canopy/lib/python2.7/site-packages/pandas/core/frame.py", line 1797, in __getitem__
+    return self._getitem_column(key)
+  File "/home/brielin/canopy/lib/python2.7/site-packages/pandas/core/frame.py", line 1804, in _getitem_column
+    return self._get_item_cache(key)
+  File "/home/brielin/canopy/lib/python2.7/site-packages/pandas/core/generic.py", line 1084, in _get_item_cache
+    values = self._data.get(item)
+  File "/home/brielin/canopy/lib/python2.7/site-packages/pandas/core/internals.py", line 2851, in get
+    loc = self.items.get_loc(item)
+  File "/home/brielin/canopy/lib/python2.7/site-packages/pandas/core/index.py", line 1572, in get_loc
+    return self._engine.get_loc(_values_from_object(key))
+  File "pandas/index.pyx", line 134, in pandas.index.IndexEngine.get_loc (pandas/index.c:3824)
+  File "pandas/index.pyx", line 154, in pandas.index.IndexEngine.get_loc (pandas/index.c:3704)
+  File "pandas/hashtable.pyx", line 686, in pandas.hashtable.PyObjectHashTable.get_item (pandas/hashtable.c:12280)
+  File "pandas/hashtable.pyx", line 694, in pandas.hashtable.PyObjectHashTable.get_item (pandas/hashtable.c:12231)
+KeyError: 'Ns'
+
+Beginning analysis at Fri Sep 11 15:30:52 2015
+Analysis finished at Fri Sep 11 15:30:54 2015
+Total time elapsed: 1.92
+Beginning analysis at Fri Sep 11 15:31:04 2015
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 109, in main
+    data = sumstats.sumstats_2_trait(scores,args)
+  File "my_tool/my_tool/sumstats.py", line 181, in __init__
+    raise ValueError('Sample overlap between two populations'
+ValueError: Sample overlap between two populations specified.
+
+Beginning analysis at Fri Sep 11 15:31:17 2015
+Analysis finished at Fri Sep 11 15:31:19 2015
+Total time elapsed: 1.92
+Beginning analysis at Fri Sep 11 15:32:34 2015
+Analysis finished at Fri Sep 11 15:36:39 2015
+Total time elapsed: 244.87
+Beginning analysis at Fri Sep 11 15:36:42 2015
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 111, in main
+    res = fit.fit_pg_pe(data.data,args)
+  File "my_tool/my_tool/fit.py", line 115, in __init__
+    options={'disp':True})
+  File "/home/brielin/canopy/lib/python2.7/site-packages/scipy/optimize/_minimize.py", line 427, in minimize
+    callback=callback, **options)
+  File "/home/brielin/canopy/lib/python2.7/site-packages/scipy/optimize/lbfgsb.py", line 315, in _minimize_lbfgsb
+    f, g = func_and_grad(x)
+  File "/home/brielin/canopy/lib/python2.7/site-packages/scipy/optimize/lbfgsb.py", line 266, in func_and_grad
+    f = fun(x, *args)
+  File "/home/brielin/canopy/lib/python2.7/site-packages/scipy/optimize/optimize.py", line 282, in function_wrapper
+    return function(*(wrapper_args + args))
+  File "/home/brielin/canopy/lib/python2.7/site-packages/scipy/optimize/optimize.py", line 60, in __call__
+    fg = self.fun(x, *args)
+  File "my_tool/my_tool/fit.py", line 113, in <lambda>
+    data.shape[0])
+  File "my_tool/my_tool/fit.py", line 145, in nllg
+    Z = np.vstack((Z1,Z2)).T.reshape((M,2,1))
+  File "/home/brielin/canopy/lib/python2.7/site-packages/numpy/core/shape_base.py", line 228, in vstack
+    return _nx.concatenate([atleast_2d(_m) for _m in tup], 0)
+ValueError: all the input array dimensions except for the concatenation axis must match exactly
+
+Beginning analysis at Fri Sep 11 15:37:36 2015
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 111, in main
+    res = fit.fit_pg_pe(data.data,args)
+  File "my_tool/my_tool/fit.py", line 115, in __init__
+    options={'disp':True})
+  File "/home/brielin/canopy/lib/python2.7/site-packages/scipy/optimize/_minimize.py", line 427, in minimize
+    callback=callback, **options)
+  File "/home/brielin/canopy/lib/python2.7/site-packages/scipy/optimize/lbfgsb.py", line 315, in _minimize_lbfgsb
+    f, g = func_and_grad(x)
+  File "/home/brielin/canopy/lib/python2.7/site-packages/scipy/optimize/lbfgsb.py", line 266, in func_and_grad
+    f = fun(x, *args)
+  File "/home/brielin/canopy/lib/python2.7/site-packages/scipy/optimize/optimize.py", line 282, in function_wrapper
+    return function(*(wrapper_args + args))
+  File "/home/brielin/canopy/lib/python2.7/site-packages/scipy/optimize/optimize.py", line 60, in __call__
+    fg = self.fun(x, *args)
+  File "my_tool/my_tool/fit.py", line 113, in <lambda>
+    data.shape[0])
+  File "my_tool/my_tool/fit.py", line 148, in nllg
+    S12 = (Ns/np.sqrt(N1*N2))*(he+hg) + (np.sqrt(N1*N2)/M)*hg*L
+NameError: global name 'he' is not defined
+
+Beginning analysis at Fri Sep 11 15:37:55 2015
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 111, in main
+    res = fit.fit_pg_pe(data.data,args)
+  File "my_tool/my_tool/fit.py", line 115, in __init__
+    options={'disp':True})
+  File "/home/brielin/canopy/lib/python2.7/site-packages/scipy/optimize/_minimize.py", line 427, in minimize
+    callback=callback, **options)
+  File "/home/brielin/canopy/lib/python2.7/site-packages/scipy/optimize/lbfgsb.py", line 315, in _minimize_lbfgsb
+    f, g = func_and_grad(x)
+  File "/home/brielin/canopy/lib/python2.7/site-packages/scipy/optimize/lbfgsb.py", line 266, in func_and_grad
+    f = fun(x, *args)
+  File "/home/brielin/canopy/lib/python2.7/site-packages/scipy/optimize/optimize.py", line 282, in function_wrapper
+    return function(*(wrapper_args + args))
+  File "/home/brielin/canopy/lib/python2.7/site-packages/scipy/optimize/optimize.py", line 60, in __call__
+    fg = self.fun(x, *args)
+  File "my_tool/my_tool/fit.py", line 113, in <lambda>
+    data.shape[0])
+  File "my_tool/my_tool/fit.py", line 152, in nllg
+    dS12dhe = np.tile(Ns/np.sqrt(N1*N2),M).reshape((M,1))
+ValueError: total size of new array must be unchanged
+
+Beginning analysis at Fri Sep 11 15:39:37 2015
+Analysis finished at Fri Sep 11 15:41:43 2015
+Total time elapsed: 126.08
+Beginning analysis at Fri Sep 11 15:41:46 2015
+Analysis finished at Fri Sep 11 15:43:49 2015
+Total time elapsed: 123.29
+Beginning analysis at Fri Sep 11 15:43:51 2015
+Analysis finished at Fri Sep 11 15:51:11 2015
+Total time elapsed: 440.25
+Beginning analysis at Fri Sep 11 15:51:13 2015
+Analysis finished at Fri Sep 11 15:53:01 2015
+Total time elapsed: 107.57
+Beginning analysis at Fri Sep 11 15:53:02 2015
+Analysis finished at Fri Sep 11 15:56:09 2015
+Total time elapsed: 186.87
+Beginning analysis at Fri Sep 11 15:56:11 2015
+Analysis finished at Fri Sep 11 16:04:57 2015
+Total time elapsed: 526.01
+Beginning analysis at Fri Sep 11 16:04:59 2015
+Beginning analysis at Fri Sep 11 16:09:51 2015
+Analysis finished at Fri Sep 11 16:14:03 2015
+Total time elapsed: 251.92
+Beginning analysis at Fri Sep 11 16:14:05 2015
+Analysis finished at Fri Sep 11 16:31:36 2015
+Total time elapsed: 1050.6
+Beginning analysis at Fri Sep 11 16:31:38 2015
+Analysis finished at Fri Sep 11 16:32:53 2015
+Total time elapsed: 75.13
+Beginning analysis at Fri Sep 11 16:32:55 2015
+Analysis finished at Fri Sep 11 16:33:26 2015
+Total time elapsed: 30.09
+Beginning analysis at Fri Sep 11 16:33:33 2015
+Analysis finished at Fri Sep 11 17:04:26 2015
+Total time elapsed: 1852.93
+Beginning analysis at Sun Sep 13 12:57:53 2015
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 87, in main
+    res = fit.fit_h1(data.data,args)
+  File "my_tool/my_tool/fit.py", line 27, in __init__
+    data, (self.h2,self.sy),args)
+  File "my_tool/my_tool/jackknife.py", line 18, in __init__
+    self.psuedovalues, self.delete_values = self.jackknife(f,x,args)
+  File "my_tool/my_tool/jackknife.py", line 35, in jackknife
+    k[slice(*b)]=False
+TypeError: type object argument after * must be a sequence, not numpy.int64
+
+Beginning analysis at Sun Sep 13 12:58:22 2015
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 87, in main
+    res = fit.fit_h1(data.data,args)
+  File "my_tool/my_tool/fit.py", line 27, in __init__
+    data, (self.h2,self.sy),args)
+  File "my_tool/my_tool/jackknife.py", line 19, in __init__
+    self.cov = np.cov(self.psuedovalues)
+  File "my_tool/my_tool/jackknife.py", line 36, in jackknife
+    k[slice(*b)]=False
+TypeError: type object argument after * must be a sequence, not numpy.int64
+
+Beginning analysis at Sun Sep 13 13:00:12 2015
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 87, in main
+    res = fit.fit_h1(data.data,args)
+  File "my_tool/my_tool/fit.py", line 27, in __init__
+    data, (self.h2,self.sy),args)
+  File "my_tool/my_tool/jackknife.py", line 18, in __init__
+    self.psuedovalues, self.delete_values = self.jackknife(f,x,args)
+  File "my_tool/my_tool/jackknife.py", line 39, in jackknife
+    ps = nb*dv - (nb-1)*r
+NameError: global name 'nb' is not defined
+
+Beginning analysis at Sun Sep 13 13:00:48 2015
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 87, in main
+    res = fit.fit_h1(data.data,args)
+  File "my_tool/my_tool/fit.py", line 27, in __init__
+    data, (self.h2,self.sy),args)
+  File "my_tool/my_tool/jackknife.py", line 19, in __init__
+    self.psuedovalues, self.delete_values = self.jackknife(f,x,args)
+  File "my_tool/my_tool/jackknife.py", line 40, in jackknife
+    ps = self.nb*dv - (self.nb-1)*r
+TypeError: unsupported operand type(s) for *: 'int' and 'Namespace'
+
+Beginning analysis at Sun Sep 13 13:01:01 2015
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 87, in main
+    res = fit.fit_h1(data.data,args)
+  File "my_tool/my_tool/fit.py", line 27, in __init__
+    data, (self.h2,self.sy), args)
+  File "my_tool/my_tool/jackknife.py", line 19, in __init__
+    self.psuedovalues, self.delete_values = self.jackknife(f,x,r)
+  File "my_tool/my_tool/jackknife.py", line 41, in jackknife
+    ps = self.nb*dv - (self.nb-1)*r
+TypeError: unsupported operand type(s) for *: 'int' and 'Namespace'
+
+Beginning analysis at Sun Sep 13 13:03:09 2015
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 87, in main
+    res = fit.fit_h1(data.data,args)
+  File "my_tool/my_tool/fit.py", line 27, in __init__
+    data, (self.h2,self.sy), args)
+  File "my_tool/my_tool/jackknife.py", line 19, in __init__
+    self.psuedovalues, self.delete_values = self.jackknife(f,x,r)
+  File "my_tool/my_tool/jackknife.py", line 40, in jackknife
+    ps = self.nb*dv - (self.nb-1)*r
+TypeError: unsupported operand type(s) for -: 'tuple' and 'tuple'
+
+Beginning analysis at Sun Sep 13 13:04:26 2015
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 87, in main
+    res = fit.fit_h1(data.data,args)
+  File "my_tool/my_tool/fit.py", line 27, in __init__
+    data, (self.h2,self.sy), args)
+  File "my_tool/my_tool/jackknife.py", line 19, in __init__
+    self.psuedovalues, self.delete_values = self.jackknife(f,x,r)
+  File "my_tool/my_tool/jackknife.py", line 41, in jackknife
+    ps = self.nb*dv - (self.nb-1)*r
+ValueError: operands could not be broadcast together with shapes (242,) (2,) 
+
+Beginning analysis at Sun Sep 13 13:04:47 2015
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 87, in main
+    res = fit.fit_h1(data.data,args)
+  File "my_tool/my_tool/fit.py", line 27, in __init__
+    data, (self.h2,self.sy), args)
+  File "my_tool/my_tool/jackknife.py", line 19, in __init__
+    self.psuedovalues, self.delete_values = self.jackknife(f,x,r)
+  File "my_tool/my_tool/jackknife.py", line 42, in jackknife
+    ps = self.nb*dv - (self.nb-1)*r
+ValueError: operands could not be broadcast together with shapes (242,) (2,) 
+
+Beginning analysis at Sun Sep 13 13:05:46 2015
+Beginning analysis at Sun Sep 13 13:06:28 2015
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 87, in main
+    res = fit.fit_h1(data.data,args)
+  File "my_tool/my_tool/fit.py", line 27, in __init__
+    data, (self.h2,self.sy), args)
+  File "my_tool/my_tool/jackknife.py", line 21, in __init__
+    self.SE = np.sqrt(np.diag(self.cov))
+  File "/home/brielin/canopy/lib/python2.7/site-packages/numpy/lib/twodim_base.py", line 310, in diag
+    raise ValueError("Input must be 1- or 2-d.")
+ValueError: Input must be 1- or 2-d.
+
+Beginning analysis at Sun Sep 13 13:07:24 2015
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 87, in main
+    res = fit.fit_h1(data.data,args)
+  File "my_tool/my_tool/fit.py", line 27, in __init__
+    data, (self.h2,self.sy), args)
+  File "my_tool/my_tool/jackknife.py", line 22, in __init__
+  File "/home/brielin/canopy/lib/python2.7/site-packages/numpy/lib/twodim_base.py", line 310, in diag
+    raise ValueError("Input must be 1- or 2-d.")
+ValueError: Input must be 1- or 2-d.
+
+Beginning analysis at Sun Sep 13 13:08:14 2015
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 87, in main
+    res = fit.fit_h1(data.data,args)
+  File "my_tool/my_tool/fit.py", line 27, in __init__
+    data, (self.h2,self.sy), args)
+  File "my_tool/my_tool/jackknife.py", line 21, in __init__
+    self.SE = np.sqrt(np.diag(self.cov))
+  File "/home/brielin/canopy/lib/python2.7/site-packages/numpy/lib/twodim_base.py", line 310, in diag
+    raise ValueError("Input must be 1- or 2-d.")
+ValueError: Input must be 1- or 2-d.
+
+Beginning analysis at Sun Sep 13 13:09:08 2015
+Beginning analysis at Sun Sep 13 13:10:04 2015
+Analysis finished at Sun Sep 13 13:13:16 2015
+Total time elapsed: 192.0
+Beginning analysis at Sun Sep 13 13:13:18 2015
+Analysis finished at Sun Sep 13 13:13:28 2015
+Total time elapsed: 10.63
+Beginning analysis at Mon Sep 14 08:49:33 2015
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 111, in main
+    res = fit.fit_pg_pe(data.data,args)
+  File "my_tool/my_tool/fit.py", line 155, in __init__
+    (self.h1,self.sy1,self.h2,
+AttributeError: 'fit_pg_pe' object has no attribute 'h1'
+
+Beginning analysis at Mon Sep 14 08:52:18 2015
+Analyzing a pair of traits in one population
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 111, in main
+    res = fit.fit_pg_pe(data.data,args)
+  File "my_tool/my_tool/fit.py", line 159, in __init__
+    self.sy2,self.pg,self.pe), args)
+  File "my_tool/my_tool/jackknife.py", line 17, in __init__
+    self.blocks = self.get_blocks(x,args)
+  File "my_tool/my_tool/jackknife.py", line 24, in get_blocks
+    N = x.shape[0]
+AttributeError: 'tuple' object has no attribute 'shape'
+
+Beginning analysis at Mon Sep 14 08:53:35 2015
+Analyzing a pair of traits in one population
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 111, in main
+    res = fit.fit_pg_pe(data.data,args)
+  File "my_tool/my_tool/fit.py", line 156, in __init__
+    self.sy2,self.pg,self.pe), args)
+  File "my_tool/my_tool/jackknife.py", line 17, in __init__
+    self.blocks = self.get_blocks(x,args)
+  File "my_tool/my_tool/jackknife.py", line 24, in get_blocks
+    N = x.shape[0]
+AttributeError: 'tuple' object has no attribute 'shape'
+
+Beginning analysis at Mon Sep 14 10:04:32 2015
+Analyzing a single trait in one population
+Analysis finished at Mon Sep 14 10:04:42 2015
+Total time elapsed: 10.64
+Beginning analysis at Mon Sep 14 10:07:38 2015
+Analyzing a single trait in one population
+Analysis finished at Mon Sep 14 10:07:48 2015
+Total time elapsed: 10.57
+Beginning analysis at Mon Sep 14 10:07:55 2015
+Analyzing a pair of traits in one population
+Beginning analysis at Mon Sep 14 10:19:43 2015
+Analyzing a single trait in one population
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 86, in main
+    data = sumstats.sumstats_1_trait(scores,args)
+  File "my_tool/my_tool/sumstats.py", line 36, in __init__
+    print(len(data1)+" SNPs detected in input.")
+TypeError: unsupported operand type(s) for +: 'int' and 'str'
+
+Beginning analysis at Mon Sep 14 10:20:19 2015
+Analyzing a single trait in one population
+Analysis finished at Mon Sep 14 10:20:29 2015
+Total time elapsed: 10.6
+Beginning analysis at Mon Sep 14 10:21:08 2015
+Analyzing a pair of traits in one population
+Beginning analysis at Mon Sep 14 10:22:28 2015
+Analyzing a pair of traits in one population
+Beginning analysis at Mon Sep 14 10:23:55 2015
+Analyzing a pair of traits in one population
+Beginning analysis at Mon Sep 14 10:24:24 2015
+Analyzing a pair of traits in one population
+Beginning analysis at Mon Sep 14 10:27:21 2015
+Analyzing a pair of traits in one population
+Beginning analysis at Mon Sep 14 10:29:52 2015
+Analyzing a pair of traits in one population
+Beginning analysis at Mon Sep 14 10:30:28 2015
+Analyzing a pair of traits in one population
+Analysis finished at Mon Sep 14 10:34:12 2015
+Total time elapsed: 224.05
+Beginning analysis at Mon Sep 14 10:56:09 2015
+Analyzing a single trait in one population
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 87, in main
+    res = fit.fit_h1(data.data,args)
+  File "my_tool/my_tool/fit.py", line 26, in __init__
+    self.res['SE'] = self.jackknife.SE
+TypeError: __init__() takes exactly 5 arguments (4 given)
+
+Beginning analysis at Mon Sep 14 10:59:36 2015
+Analyzing a single trait in one population
+Traceback (most recent call last):
+  File "/home/brielin/CoHerit/my_tool/__main__.py", line 116, in main
+    res.write(args.out)
+  File "my_tool/my_tool/fit.py", line 53, in write
+    with open(outfile,'w') as out:
+IOError: [Errno 21] Is a directory: 'my_tool/test/'
+

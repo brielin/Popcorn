@@ -16,10 +16,12 @@ class sumstats_1_trait(object):
     '''
     def __init__(self,scores,args):
         data1, id_type = self.parse_input(args.sfile)
+        print(len(data1),"SNPs detected in input.")
         self.id_type = id_type
         if self.id_type == 'pos':
             scores['id']='chr'+scores['chr'].map(str)+':'+scores['pos'].map(str)
         comm_snps = scores.index.intersection(data1.index)
+        print(len(comm_snps),"SNPs remaining after merging with score file.")
         data1 = data1.loc[comm_snps]
         scores = scores.loc[comm_snps]
         align1=self.align_to_scores(data1,scores['a1'],scores['a2'],scores['af'])
@@ -33,6 +35,8 @@ class sumstats_1_trait(object):
             data['SE'] = data1['SE']
         except KeyError:
             pass
+        print(len(data),"SNPs remaining after filtering on AF and self-"
+              "compliment SNPs.")
         self.data = data.loc[align1!=0]
 
     def parse_input(self,sfile):
@@ -124,19 +128,23 @@ class sumstats_2_trait(sumstats_1_trait):
         except AssertionError:
             raise ValueError('Provided summary statistics files do not have'
                              ' the same SNP ID types.')
+        print(len(data1),len(data2),"SNPs detected in input.")
         self.id_type = id_type1
         if self.id_type == 'pos':
             # Need to double check that this changes the index since id=index
             scores['id']='chr'+scores['chr'].map(str)+':'+scores['pos'].map(str)
         comm_snps = scores.index.intersection(data1.index).\
             intersection(data2.index)
+        print(len(comm_snps),"SNPs remaining after merging with score file.")
         data1 = data1.loc[comm_snps]
         data2 = data2.loc[comm_snps]
         scores = scores.loc[comm_snps]
         try:
             af1, af2 = scores['af'], scores['af']
+            self.two_pops = False
         except KeyError:
             af1, af2 = scores['af1'], scores['af2']
+            self.two_pops = True
         align1=self.align_to_scores(data1,scores['a1'],scores['a2'],af1)
         align2=self.align_to_scores(data2,scores['a1'],scores['a2'],af2)
         # data = pd.DataFrame()
@@ -157,4 +165,28 @@ class sumstats_2_trait(sumstats_1_trait):
             data['SE2'] = data2['SE']
         except KeyError:
             pass
+        try:
+            # Haven't tested, probably doesn't work
+            Ns = pd.read_table(args.Ns,index_col=0)
+            comm = NS.index.intersection(data.index)
+            data['Ns'] = Ns.loc[comm]
+        except IOError:
+            try:
+                Ns = float(args.Ns)
+                if Ns < 1.0:
+                    data['Ns'] = Ns*data['N1']
+                else:
+                    data['Ns'] = Ns
+            except TypeError:
+                if self.two_pops == False:
+                    warnings.warn('Sample overlap not specified,'
+                                 ' assuming 0.')
+                data['Ns'] = 0
+        self.overlap = np.all(data['Ns'])
+        if self.two_pops and self.overlap:
+            raise ValueError('Sample overlap between two populations'
+                             ' specified.')
+        print(len(data),"SNPs remaining after filtering on AF and self-"
+              "compliment SNPs.")
+
         self.data = data.loc[(align1!=0)&(align2!=0)]
