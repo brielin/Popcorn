@@ -40,6 +40,9 @@ class covariance_scores_1_pop(object):
         bed_1 = Bed(args.bfile) #
         af1 = self.get_allele_frequency(bed_1,args.SNPs_to_read) #
         snps_1 = (af1>args.maf)&(af1<1-args.maf) #
+        if (args.from_bp is not None) and (args.to_bp is not None):
+            k = (bed_1.pos[:,2]>args.from_bp)&(bed_1.pos[:,2]<args.to_bp)
+            snps_1 = snps_1&k
         snps_to_use = bed_1.sid[snps_1]
         bed_1_index = np.sort(bed_1.sid_to_index(snps_to_use)) #
         pos = bed_1.pos[bed_1_index] #
@@ -146,6 +149,11 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
         af2 = self.get_allele_frequency(bed_2,args.SNPs_to_read)
         snps_1 = (af1>args.maf)&(af1<1-args.maf) #
         snps_2 = (af2>args.maf)&(af2<1-args.maf)
+        if (args.from_bp is not None) and (args.to_bp is not None):
+            k1 = (bed_1.pos[:,2]>args.from_bp)&(bed_1.pos[:,2]<args.to_bp)
+            k2 = (bed_2.pos[:,2]>args.from_bp)&(bed_2.pos[:,2]<args.to_bp)
+            snps_1 = snps_1&k1
+            snps_2 = snps_2&k2
         snps_to_use = np.intersect1d(bed_1.sid[snps_1],bed_2.sid[snps_2])
         bed_1_index = np.sort(bed_1.sid_to_index(snps_to_use)) #
         bed_2_index = np.sort(bed_2.sid_to_index(snps_to_use))
@@ -172,7 +180,7 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
                                      alignment,args) #
 
     def write(self,args):
-        f = open(args.out+'.cscore','w')
+        f = open(args.out,'w')
         for l in zip(self.chr,self.pos,self.id,self.A1,self.A2,self.af1,
                      self.af2,self.scores1,self.scores2,self.scoresX):
             f.write('\t'.join(map(str,l))+'\n')
