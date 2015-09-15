@@ -76,8 +76,12 @@ class covariance_scores_1_pop(object):
         return np.array([wl,wr]).T
 
     def get_allele_frequency(self,bed,s):
-        return np.concatenate([bed[:,i*s:(i+1)*s].read().val.mean(0)/2.0
+        af = np.concatenate([bed[:,i*s:(i+1)*s].read().val.mean(0)/2.0
                                for i in xrange(int(np.ceil(bed.sid_count/s)))])
+        var = np.concatenate([bed[:,i*s:(i+1)*s].read().val.var(0)
+                              for i in xrange(int(np.ceil(bed.sid_count/s)))])
+        af[var==0]=0
+        return af
 
     def compute(self,bed_1,bed_1_index,af,args):
         N = bed_1.iid_count
