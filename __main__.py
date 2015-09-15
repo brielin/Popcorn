@@ -1,8 +1,8 @@
 from __future__ import division
 from __future__ import print_function
-from my_tool import fit
-from my_tool import compute
-from my_tool import sumstats
+from mytool import fit
+from mytool import compute
+from mytool import sumstats
 import numpy as np
 import pandas as pd
 import time
