@@ -12,16 +12,17 @@ from time import time
 from . import jackknife
 
 class fit_by_region(object):
-    def __init__(self,data,args,t='h1'):
+    def __init__(self,data,scores,args,t='h1'):
         types = {'h1':fit_h1,'pg':fit_pg,'pg_pe':fit_pg_pe}
         regions = pd.read_table(args.regions,sep='\s*')
         if regions['chr'][0][0]=='c':
             regions['chr'] = map(lambda x: int(x[3:]), regions['chr'])
+        regions['M'] = self.get_M_by_region(regions,scores)
         fit_list = []
-        for chm,start,end in regions.values:
+        for chm,start,end,M in regions.values:
             keep = (data['chr']==chm)&(data['pos']>start)&(data['pos']<end)
             datak = data[keep]
-            fitk = types[t](datak,args)
+            fitk = types[t](datak,args,M=M)
             fit_list.append(fitk)
         region_index = regions['chr'].map(str)+':'+regions['start'].map(str)+\
             ':'+regions['stop'].map(str)
@@ -47,6 +48,13 @@ class fit_by_region(object):
             self.res_pe.index = region_index
         except:
             pass
+
+    def get_M_by_region(self,regions,scores):
+        M = []
+        for chm,start,end in regions.values:
+            Mi = ((scores['chr']==chm)&(scores['pos']>start)&(scores['pos']<end)).sum()
+            M.append(Mi)
+        return np.array(M)
 
     def write(self,outfile):
         for k in self.__dict__.keys():
@@ -105,8 +113,9 @@ class fit_h1(object):
         self.res.to_csv(outfile,sep='\t',na_rep='NaN')
 
 class fit_pg(fit_h1):
-    def __init__(self,data,args):
-        self.M = data.shape[0]
+    def __init__(self,data,args,M=None):
+        if M is None: self.M = data.shape[0]
+        else: self.M = M
         self.h1_res, self.sy1, self.h2_res, self.sy2, self.pg_res, self.ll =\
             self.__call__(data,args)
         res = np.array([self.h1_res.h_res.x, self.sy1, self.h2_res.h_res.x,
@@ -175,8 +184,9 @@ class fit_pg(fit_h1):
         return -1.0*l
 
 class fit_pg_pe(fit_pg):
-    def __init__(self,data,args):
-        self.M = data.shape[0]
+    def __init__(self,data,args,M=None):
+        if M is None: self.M = data.shape[0]
+        else: self.M = M
         self.h1_res, self.sy1, self.h2_res, self.sy2,  self.pg_res, self.ll =\
             self.__call__(data,args)
         res = np.array([self.h1_res.h_res.x, self.sy1, self.h2_res.h_res.x,

@@ -2,13 +2,14 @@ from __future__ import division
 from __future__ import print_function
 import numpy as np
 import pandas as pd
-import time
 import sys
 from pysnptools.snpreader import Bed
 from pysnptools.standardizer import Unit
 from IPython import embed
+from time import time
 
-compliment = {'A':'T','T':'A','G':'C','C':'G'}
+compliment = {'A':'T','T':'A','G':'C','C':'G',
+              'a':'t','t':'a','g':'c','c':'g'}
 
 class covariance_scores_1_pop(object):
     '''
@@ -92,7 +93,7 @@ class covariance_scores_1_pop(object):
             def func(a,i,j):
                 c = a**2
                 return c.sum(1), c.sum(0)[0:-1]
-        t=time.time()
+        t=time()
         scores = np.zeros((self.M))
         li,ri = self.windows[0]
         X1 = bed_1[:,bed_1_index[li:ri]].read().standardize(Unit()).val
@@ -102,7 +103,8 @@ class covariance_scores_1_pop(object):
         offset = 0
         out1 = np.zeros((1,nstr-1))
         for i in xrange(ri,self.M,nstr):
-            print(i, time.time()-t)
+            sys.stdout.write("SNP: %d, %f\r" % (i, time()-t))
+            sys.stdout.flush()
             X1n= bed_1[:,bed_1_index[i:(i+nstr)]].read().standardize(Unit()).val
             A1 = np.hstack((X1,X1n))
             for j in xrange(i,np.min((i+nstr,self.M))):
@@ -116,11 +118,12 @@ class covariance_scores_1_pop(object):
                 scores[j] += func_ret[0]
             X1 = X1n
             offset += nstr
-        print(time.time()-t)
+        print(time()-t)
         return scores
 
     def write(self,args):
         f = open(args.out+'.cscore','w')
+        f.write('# M = '+str(self.M)+'\n')
         for l in zip(self.chr,self.pos,self.id,self.A1,self.A2,self.af,
                      self.scores):
             f.write('\t'.join(map(str,l))+'\n')
@@ -232,7 +235,7 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
             def func(a,b,i,j):
                 c = a*b
                 return c.sum(1), c.sum(0)[0:-1]
-        t=time.time()
+        t=time()
         scores = np.zeros((self.M))
         li,ri = self.windows[0]
         X1 = bed_1[:,bed_1_index[li:ri]].read().standardize(Unit()).val
@@ -246,7 +249,8 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
         out1 = np.zeros((1,nstr-1))
         out2 = np.zeros((1,nstr-1))
         for i in xrange(ri,self.M,nstr):
-            print(i, time.time()-t)
+            sys.stdout.write("SNP: %d, %f\r" % (i,time()-t))
+            sys.stdout.flush()
             X1n= bed_1[:,bed_1_index[i:(i+nstr)]].read().standardize(Unit()).val
             X2n= bed_2[:,bed_2_index[i:(i+nstr)]].read().standardize(Unit()).val
             A1 = np.hstack((X1,X1n))
@@ -266,5 +270,5 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
             X1 = X1n
             X2 = X2n
             offset += nstr
-        print(time.time()-t)
+        print(time()-t)
         return scores

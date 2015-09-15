@@ -82,13 +82,16 @@ def main(args):
                     and (args.sfile2 is None):
                 print("Analyzing a single trait in one population")
                 if args.sfile is None: args.sfile = args.sfile1
-                scores = pd.read_table(args.cfile,header=None,
+                # with open(args.cfile,'r') as f:
+                #     M = int(f.readline().strip().split()[-1])
+                scores = pd.read_table(args.cfile,header=None,comment='#',
                                        names=['chr','pos','id','a1','a2','af',
                                                'score'])
+                M = scores.shape[0]
                 scores.index = scores['id']
                 data = sumstats.sumstats_1_trait(scores,args)
                 if args.regions:
-                    res = fit.fit_by_region(data.data,args,t='h1')
+                    res = fit.fit_by_region(data.data,scores,args,t='h1')
                 else:
                     res = fit.fit_h1(data.data,args)
             elif (args.sfile is not None) \
@@ -99,30 +102,31 @@ def main(args):
                     ncols = len(f.readline().strip().split())
                 if ncols == 7:
                     print("Analyzing a pair of traits in one population")
-                    scores = pd.read_table(args.cfile,header=None,
+                    scores = pd.read_table(args.cfile,header=None,comment='#',
                                            names=['chr','pos','id','a1','a2',
                                                   'af','score'],sep='\t')
                 elif ncols == 10:
                     print("Analyzing a pair of traits in two populations")
-                    scores = pd.read_table(args.cfile,header=None,
+                    scores = pd.read_table(args.cfile,header=None,comment='#',
                                            names=['chr','pos','id','a1','a2',
                                                   'af1','af2','score1','score2',
                                                   'scoreX'])
                 else:
                     raise ValueError('Cscores file not understood. Did you'
                                      ' compute them with this program?')
+                M = scores.shape[0]
                 scores.index = scores['id']
                 data = sumstats.sumstats_2_trait(scores,args)
                 if data.overlap:
                     if args.regions:
-                        res = fit.fit_by_region(data.data,args,t='pg_pe')
+                        res = fit.fit_by_region(data.data,args,t='pg_pe',M=M)
                     else:
-                        res = fit.fit_pg_pe(data.data,args)
+                        res = fit.fit_pg_pe(data.data,args,M=M)
                 else:
                     if args.regions:
-                        res = fit.fit_by_region(data.data,args,t='pg')
+                        res = fit.fit_by_region(data.data,args,t='pg',M=M)
                     else:
-                        res = fit.fit_pg(data.data,args)
+                        res = fit.fit_pg(data.data,args,M=M)
             else:
                 raise ValueError('Must provide bfile or bfile1, or bfile1 and 2')
             #print(res.res.to_string())
