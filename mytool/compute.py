@@ -122,7 +122,7 @@ class covariance_scores_1_pop(object):
         return scores
 
     def write(self,args):
-        f = open(args.out+'.cscore','w')
+        f = open(args.out,'w')
         f.write('# M = '+str(self.M)+'\n')
         for l in zip(self.chr,self.pos,self.id,self.A1,self.A2,self.af,
                      self.scores):
