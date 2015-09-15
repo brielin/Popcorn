@@ -53,12 +53,15 @@ def main(args):
                             ' of overlapping samples or 2) proportion of'
                             ' overlapping samples or a 3) text file containing'
                             ' the number of overlapping samples per SNP ID.')
-    parser_fit.add_argument('--niter',help='Specify the max iterations for MLE.'
-                            ' Unless you have convergence issues use default',
-                            default=1000,type=int)
-    parser_fit.add_argument('--ll_tol',help='Specify the convergence tolerance'
-                            ' for MLE. Unless you have convergence issues use'
-                            ' default',default=0.001)
+    parser_fit.add_argument('--regions',help='A text file with three columns'
+                            ' specifying chromosome, starting base and ending'
+                            ' base for a list of regions to analyse separately.')
+    # parser_fit.add_argument('--niter',help='Specify the max iterations for MLE.'
+    #                         ' Unless you have convergence issues use default',
+    #                         default=1000,type=int)
+    # parser_fit.add_argument('--ll_tol',help='Specify the convergence tolerance'
+    #                         ' for MLE. Unless you have convergence issues use'
+    #                         ' default',default=0.001)
     args = parser.parse_args()
 
     # Set up logger to print to log file and std out
@@ -84,7 +87,10 @@ def main(args):
                                                'score'])
                 scores.index = scores['id']
                 data = sumstats.sumstats_1_trait(scores,args)
-                res = fit.fit_h1(data.data,args)
+                if args.regions:
+                    res = fit.fit_by_region(data.data,args,t='h1')
+                else:
+                    res = fit.fit_h1(data.data,args)
             elif (args.sfile is not None) \
                     ^ (args.sfile1 is not None) \
                     and (args.sfile2 is not None):
@@ -108,12 +114,18 @@ def main(args):
                 scores.index = scores['id']
                 data = sumstats.sumstats_2_trait(scores,args)
                 if data.overlap:
-                    res = fit.fit_pg_pe(data.data,args)
+                    if args.regions:
+                        res = fit.fit_by_region(data.data,args,t='pg_pe')
+                    else:
+                        res = fit.fit_pg_pe(data.data,args)
                 else:
-                    res = fit.fit_pg(data.data,args)
+                    if args.regions:
+                        res = fit.fit_by_region(data.data,args,t='pg')
+                    else:
+                        res = fit.fit_pg(data.data,args)
             else:
                 raise ValueError('Must provide bfile or bfile1, or bfile1 and 2')
-            print(res.res.to_string())
+            #print(res.res.to_string())
             res.write(args.out)
         elif args.mode == 'compute':
             if (args.bfile is not None) \

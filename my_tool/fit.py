@@ -11,6 +11,51 @@ from IPython import embed
 from time import time
 from . import jackknife
 
+class fit_by_region(object):
+    def __init__(self,data,args,t='h1'):
+        types = {'h1':fit_h1,'pg':fit_pg,'pg_pe':fit_pg_pe}
+        regions = pd.read_table(args.regions,sep='\s*')
+        if regions['chr'][0][0]=='c':
+            regions['chr'] = map(lambda x: int(x[3:]), regions['chr'])
+        fit_list = []
+        for chm,start,end in regions.values:
+            keep = (data['chr']==chm)&(data['pos']>start)&(data['pos']<end)
+            datak = data[keep]
+            fitk = types[t](datak,args)
+            fit_list.append(fitk)
+        region_index = regions['chr'].map(str)+':'+regions['start'].map(str)+\
+            ':'+regions['stop'].map(str)
+        self.fit_list = fit_list
+        try:
+            self.res_h = pd.concat(map(lambda x: x.res.loc['h'], fit_list),
+                                   axis=1, ignore_index=True).T
+            self.res_h.index = region_index
+        except KeyError:
+            pass
+        try:
+            self.res_h1 = pd.concat(map(lambda x: x.res.loc['h1'], fit_list),
+                                    axis=1, ignore_index=True).T
+            self.res_h1.index = region_index
+            self.res_h2 = pd.concat(map(lambda x: x.res.loc['h2'], fit_list),
+                                    axis=1, ignore_index=True).T
+            self.res_h2.index = region_index
+            self.res_pg = pd.concat(map(lambda x: x.res.loc['pg'], fit_list),
+                                    axis=1, ignore_index=True).T
+            self.res_pg.index = region_index
+            self.res_pe = pd.concat(map(lambda x: x.res.loc['pe'], fit_list),
+                                    axis=1, ignore_index=True).T
+            self.res_pe.index = region_index
+        except:
+            pass
+
+    def write(self,outfile):
+        for k in self.__dict__.keys():
+            try:
+                self.__dict__[k].to_csv(outfile+'.'+k,sep='\t')
+            except AttributeError:
+                pass
+
+
 class fit_h1(object):
     def __init__(self,data,args,jk=True,M=None):
         if M is None: self.M = data.shape[0]

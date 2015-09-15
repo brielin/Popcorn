@@ -15,18 +15,24 @@ from time import time
 class jackknife(object):
     def __init__(self,f,x,r,args):
         N = len(x)
-        self.blocks = self.get_blocks(N,args)
+        self.blocks, self.bs = self.get_blocks(N,args)
         self.nb = len(self.blocks)
         print('Performing jackknife estimation of the standard'
-              'error using',self.nb,'blocks of size 200.')
+              'error using',self.nb,'blocks of size',self.bs,'.')
         self.psuedovalues, self.delete_values = self.jackknife(f,x,r)
         self.cov = np.cov(self.psuedovalues,rowvar=False)
         self.SE = np.sqrt(np.diag(self.cov)/self.nb)
 
     def get_blocks(self,N,args):
-        nblocks = N/200
+        if N < 1000:
+            bs = N/10
+        elif N < 10000:
+            bs = 100
+        else:
+            bs = 200
+        nblocks = N/bs
         A = np.floor(np.linspace(0,N,nblocks+1)).astype(int)
-        return zip(A[:-1],A[1:])
+        return zip(A[:-1],A[1:]), bs
 
     def jackknife(self,f,x,r):
         psa = []
