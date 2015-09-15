@@ -38,7 +38,7 @@ class covariance_scores_1_pop(object):
         if args.window_type not in ['BP','SNP']:
             raise ValueError('Window type not supported')
         bed_1 = Bed(args.bfile) #
-        af1 = self.get_allele_frequency(bed_1,args.SNPs_to_read) #
+        af1 = self.get_allele_frequency(bed_1,args) #
         snps_1 = (af1>args.maf)&(af1<1-args.maf) #
         if (args.from_bp is not None) and (args.to_bp is not None):
             k = (bed_1.pos[:,2]>args.from_bp)&(bed_1.pos[:,2]<args.to_bp)
@@ -80,11 +80,24 @@ class covariance_scores_1_pop(object):
             wr.append(j)
         return np.array([wl,wr]).T
 
-    def get_allele_frequency(self,bed,s):
-        af = np.concatenate([bed[:,i*s:(i+1)*s].read().val.mean(0)/2.0
-                               for i in xrange(int(np.ceil(bed.sid_count/s)))])
-        var = np.concatenate([bed[:,i*s:(i+1)*s].read().val.var(0)
-                              for i in xrange(int(np.ceil(bed.sid_count/s)))])
+    def _fast_var(self,X,m):
+        return ((X - 2*m)**2).mean(0)
+
+    def get_allele_frequency(self,bed,args):
+        s = args.SNPs_to_read
+        af = np.zeros((bed.sid_count))
+        var = np.zeros((bed.sid_count))
+        if (args.from_bp is not None) and (args.to_bp is not None):
+            k0 = np.where((bed.pos[:,2]>=args.from_bp))[0][0]
+            k1 = np.where((bed.pos[:,2]<=args.to_bp))[0][-1]
+            X = bed[:,k0:k1].read().val
+            af[k0:k1] = X.mean(0)/2.0
+            var[k0:k1] = self._fast_var(X,2*af[k0:k1])
+        else:
+            for i in xrange(int(np.ceil(bed.sid_count/s))):
+                X = bed[:,i*s:(i+1)*s].read().val
+                af[i*s:(i+1)*s] = X.mean(0)/2.0
+                var[i*s:(i+1)*s] = self._fast_var(X,2*af[i*s:(i+1)*s])
         af[var==0]=0
         return af
 
@@ -145,8 +158,8 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
             raise ValueError('Window type not supported')
         bed_1 = Bed(args.bfile1) #
         bed_2 = Bed(args.bfile2)
-        af1 = self.get_allele_frequency(bed_1,args.SNPs_to_read) #
-        af2 = self.get_allele_frequency(bed_2,args.SNPs_to_read)
+        af1 = self.get_allele_frequency(bed_1,args) #
+        af2 = self.get_allele_frequency(bed_2,args)
         snps_1 = (af1>args.maf)&(af1<1-args.maf) #
         snps_2 = (af2>args.maf)&(af2<1-args.maf)
         if (args.from_bp is not None) and (args.to_bp is not None):
