@@ -59,13 +59,15 @@ class covariance_scores_1_pop(object):
     def get_windows(self,pos,args):
         if args.window_type == 'BP':
             coords = pos[:,2]
+            ws = 1000*args.window_size
         elif args.window_type == 'SNP':
             coords = np.array(range(self.M))
+            ws = args.window_size
         wl = []
         wr = []
         j=0
         for i in xrange(self.M):
-            while j<self.M and abs(coords[j]-coords[i])>args.window_size:
+            while j<self.M and abs(coords[j]-coords[i])>ws:
                 j+=1
             wl.append(j)
         j=0
@@ -100,28 +102,30 @@ class covariance_scores_1_pop(object):
         t=time()
         scores = np.zeros((self.M))
         li,ri = self.windows[0]
-        X1 = bed_1[:,bed_1_index[li:ri]].read().standardize(Unit()).val
-        R1 = np.dot(X1.T,X1/N)
+        A1 = bed_1[:,bed_1_index[li:ri]].read().standardize(Unit()).val
+        R1 = np.dot(A1.T,A1/N)
         scores[li:ri] += func(R1,li,ri)[0]
         nstr = ri-li
         offset = 0
-        out1 = np.zeros((1,nstr-1))
+        #out1 = np.zeros((1,nstr-1))
         for i in xrange(ri,self.M,nstr):
             sys.stdout.write("SNP: %d, %f\r" % (i, time()-t))
             sys.stdout.flush()
             X1n= bed_1[:,bed_1_index[i:(i+nstr)]].read().standardize(Unit()).val
-            A1 = np.hstack((X1,X1n))
+            A1 = np.hstack((A1,X1n))
             for j in xrange(i,np.min((i+nstr,self.M))):
                 lb,rb = self.windows[j]
                 lbp = lb-offset
                 jp = j-offset
-                np.dot(np.atleast_2d(A1[:,jp]/N),A1[:,lbp:jp],out=out1)
+                out1 = np.dot(np.atleast_2d(A1[:,jp]/N),A1[:,lbp:jp])
+                # np.dot(np.atleast_2d(A1[:,jp]/N),A1[:,lbp:jp],out=out1)
                 _out1 = np.hstack((out1,[[1]]))
                 func_ret = func(_out1,lb,j+1)
                 scores[lb:j] += func_ret[1]
                 scores[j] += func_ret[0]
-            X1 = X1n
-            offset += nstr
+            if A1.shape[1] > 10000:
+                A1 = A1[:,nstr:]
+                offset += nstr
         print(time()-t)
         return scores
 

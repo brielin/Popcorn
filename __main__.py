@@ -39,7 +39,7 @@ def main(args):
     parser_compute.add_argument('--window_size',help='Specify window size',
                                 default=1000)
     parser_compute.add_argument('--window_type',help='Specify window type'
-                                ' (SNP,BP)',default='SNP')
+                                ' (SNP,BP)',default='BP')
     parser_compute.add_argument('--SNPs_to_read',help='Specify number of SNPs'
                                 'to read at a time. Do not set yourself',
                                 default=1000)
