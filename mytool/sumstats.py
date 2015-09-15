@@ -8,7 +8,8 @@ import argparse
 import warnings
 from IPython import embed
 
-compliment = {'A':'T','T':'A','G':'C','C':'G'}
+compliment = {'A':'T','T':'A','G':'C','C':'G',
+              'a':'t','t':'a','g':'c','c':'g'}
 
 class sumstats_1_trait(object):
     '''

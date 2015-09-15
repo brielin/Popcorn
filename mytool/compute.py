@@ -37,7 +37,7 @@ class covariance_scores_1_pop(object):
     def __init__(self,args):
         if args.window_type not in ['BP','SNP']:
             raise ValueError('Window type not supported')
-        bed_1 = Bed(args.bfile1) #
+        bed_1 = Bed(args.bfile) #
         af1 = self.get_allele_frequency(bed_1,args.SNPs_to_read) #
         snps_1 = (af1>args.maf)&(af1<1-args.maf) #
         snps_to_use = bed_1.sid[snps_1]
