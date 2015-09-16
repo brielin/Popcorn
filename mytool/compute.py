@@ -81,7 +81,7 @@ class covariance_scores_1_pop(object):
         return np.array([wl,wr]).T
 
     def _fast_var(self,X,m):
-        return ((X - 2*m)**2).mean(0)
+        return ((X - m)**2).mean(0)
 
     def get_allele_frequency(self,bed,args):
         s = args.SNPs_to_read
@@ -101,6 +101,15 @@ class covariance_scores_1_pop(object):
         af[var==0]=0
         return af
 
+    def _norm_data(self,X):
+        m = np.nanmean(X,0)
+        inds = np.where(np.isnan(X))
+        X[inds]=np.take(m,inds[1])
+        np.subtract(X,m,out=X)
+        v = X.var(0)
+        np.divide(X,np.sqrt(v),out=X)
+        return X
+
     def compute(self,bed_1,bed_1_index,af,args):
         N = bed_1.iid_count
         if args.per_allele:
@@ -118,7 +127,7 @@ class covariance_scores_1_pop(object):
         t=time()
         scores = np.zeros((self.M))
         li,ri = self.windows[0]
-        A1 = bed_1[:,bed_1_index[li:ri]].read().standardize(Unit()).val
+        A1 = self._norm_data(bed_1[:,bed_1_index[li:ri]].read().val)
         R1 = np.dot(A1.T,A1/N)
         scores[li:ri] += func(R1,li,ri)[0]
         nstr = ri-li
@@ -127,7 +136,7 @@ class covariance_scores_1_pop(object):
         for i in xrange(ri,self.M,nstr):
             sys.stdout.write("SNP: %d, %f\r" % (i, time()-t))
             sys.stdout.flush()
-            X1n= bed_1[:,bed_1_index[i:(i+nstr)]].read().standardize(Unit()).val
+            X1n= self._norm_data(bed_1[:,bed_1_index[i:(i+nstr)]].read().val)
             A1 = np.hstack((A1,X1n))
             for j in xrange(i,np.min((i+nstr,self.M))):
                 lb,rb = self.windows[j]
