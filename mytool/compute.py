@@ -148,7 +148,7 @@ class covariance_scores_1_pop(object):
                 func_ret = func(_out1,lb,j+1)
                 scores[lb:j] += func_ret[1]
                 scores[j] += func_ret[0]
-            if A1.shape[1] > 10000:
+            if A1.shape[1] > args.SNPs_to_store:
                 A1 = A1[:,nstr:]
                 offset += nstr
         print(time()-t)
@@ -307,7 +307,7 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
                 func_ret = func(_out1,_out2,lb,j+1)
                 scores[lb:j] += func_ret[1]
                 scores[j] += func_ret[0]
-            if A1.shape[1] > 10000:
+            if A1.shape[1] > args.SNPs_to_store:
                 A1 = A1[:,nstr:]
                 A2 = A2[:,nstr:]
                 offset += nstr

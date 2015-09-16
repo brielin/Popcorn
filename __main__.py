@@ -39,12 +39,15 @@ def main(args):
     parser_compute.add_argument('--bfile2',help='Specify binary plink filename'
                                 'for population 2',default=None)
     parser_compute.add_argument('--window_size',help='Specify window size',
-                                default=1000)
+                                default=1000,type=int)
     parser_compute.add_argument('--window_type',help='Specify window type'
                                 ' (SNP,BP)',default='BP')
     parser_compute.add_argument('--SNPs_to_read',help='Specify number of SNPs'
                                 'to read at a time. Do not set yourself',
-                                default=1000)
+                                default=1000,type=int)
+    parser_compute.add_argument('--SNPs_to_store',help='Specify size of'
+                                'in memory SNP array. May need to increase'
+                                'for dense panels.',type=int,default=10000)
     # Arguments exclusive to fit mode
     parser_fit = subparsers.add_parser('fit')
     parser_fit.add_argument('--sfile',help='Specify summary statistics file')
