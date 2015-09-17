@@ -17,6 +17,7 @@ class sumstats_1_trait(object):
     '''
     def __init__(self,scores,args):
         data1, id_type = self.parse_input(args.sfile)
+        data1 = data1.loc[~data1.index.duplicated()]
         print(len(data1),"SNPs detected in input.")
         self.id_type = id_type
         if self.id_type == 'pos':
