@@ -25,6 +25,7 @@ def main(args):
                         default=False,action='store_true')
     parser.add_argument('--from_bp',default=None,type=int)
     parser.add_argument('--to_bp',default=None,type=int)
+    parser.add_argument('--no_align',default=False,type=bool)
     subparsers = parser.add_subparsers(help='Program mode: "compute" for '
                                        'computing covariance scores, "fit" for '
                                        'fitting summary statistics with already'

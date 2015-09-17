@@ -179,8 +179,11 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
         snps_to_use = np.intersect1d(bed_1.sid[snps_1],bed_2.sid[snps_2])
         bed_1_index = np.sort(bed_1.sid_to_index(snps_to_use)) #
         bed_2_index = np.sort(bed_2.sid_to_index(snps_to_use))
-        alignment,bed_1_index,bed_2_index =\
-            self.align_alleles(bed_1,bed_1_index,af1,bed_2,bed_2_index,af2)
+        if not args.no_align:
+            alignment,bed_1_index,bed_2_index =\
+                self.align_alleles(bed_1,bed_1_index,af1,bed_2,bed_2_index,af2)
+        else:
+            alignment = np.ones(len(bed_1_index))
         pos = bed_1.pos[bed_1_index] #
         bim_1=pd.read_table(bed_1.filename+'.bim',header=None,
                             names=['chm','id','pos_mb','pos_bp','a1','a2'])
