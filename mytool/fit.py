@@ -60,6 +60,7 @@ class fit_by_region(object):
         for k in self.__dict__.keys():
             try:
                 self.__dict__[k].to_csv(outfile+'.'+k,sep='\t')
+                print(self.__dict__[k].to_string())
             except AttributeError:
                 pass
 
@@ -110,6 +111,7 @@ class fit_h1(object):
         return -1.0*l
 
     def write(self,outfile):
+        print(res.res.to_string())
         self.res.to_csv(outfile,sep='\t',na_rep='NaN')
 
 class fit_pg(fit_h1):
