@@ -91,7 +91,7 @@ class fit_h1(object):
     def __call__(self,data,args):
         f=lambda x: self.nll(x,data['Z'],data['N'],self.M,data['score'])
         h = optimize.minimize_scalar(f,bounds=(0.0,1.0),method='bounded',
-                                     tol=0.0, options={'disp':True})
+                                     tol=args.tol, options={'disp':True})
         sy = self.estimate_sy(data,h.x,data.shape[0])
         return h, sy, f
 

@@ -66,9 +66,9 @@ def main(args):
     # parser_fit.add_argument('--niter',help='Specify the max iterations for MLE.'
     #                         ' Unless you have convergence issues use default',
     #                         default=1000,type=int)
-    # parser_fit.add_argument('--ll_tol',help='Specify the convergence tolerance'
-    #                         ' for MLE. Unless you have convergence issues use'
-    #                         ' default',default=0.001)
+    parser_fit.add_argument('--tol',help='Specify the convergence tolerance'
+                            ' for MLE. Unless you have convergence issues use'
+                            ' default',default=.00001)
     args = parser.parse_args()
 
     # Set up logger to print to log file and std out
@@ -136,7 +136,6 @@ def main(args):
                         res = fit.fit_pg(data.data,args,M=M)
             else:
                 raise ValueError('Must provide bfile or bfile1, or bfile1 and 2')
-            print(res.res.to_string())
             res.write(args.out)
         elif args.mode == 'compute':
             if (args.bfile is not None) \
