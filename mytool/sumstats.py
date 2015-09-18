@@ -26,7 +26,10 @@ class sumstats_1_trait(object):
         print(len(comm_snps),"SNPs remaining after merging with score file.")
         data1 = data1.loc[comm_snps]
         scores = scores.loc[comm_snps]
-        align1=self.align_to_scores(data1,scores['a1'],scores['a2'],scores['af'])
+        if not args.no_align:
+            align1=self.align_to_scores(data1,scores['a1'],scores['a2'],scores['af'])
+        else:
+            align1=np.ones((len(comm_snps)))
         data = pd.DataFrame()
         #data = scores[['chr','pos','id','a1','a2','score']]
         data = scores.copy()
@@ -89,6 +92,7 @@ class sumstats_1_trait(object):
             data['Z'] = data['beta']/data['SE']
             data = data[['id','af','a1','a2','N','beta','SE','Z']]
             id_type='rsid'
+            data.index = data['id']
         return data, id_type
 
     # Similar enough to the one in compute.py to be rolled into one function

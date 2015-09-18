@@ -100,7 +100,7 @@ def main(args):
                 if args.regions:
                     res = fit.fit_by_region(data.data,scores,args,t='h1')
                 else:
-                    res = fit.fit_h1(data.data,args)
+                    res = fit.fit_h1(data.data,args,M=M)
             elif (args.sfile is not None) \
                     ^ (args.sfile1 is not None) \
                     and (args.sfile2 is not None):
