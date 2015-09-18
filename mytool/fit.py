@@ -167,8 +167,8 @@ class fit_pg(fit_h1):
             pass
         pg = optimize.minimize_scalar(f,bounds=(-1.0,1.0),method='bounded',
                                      options={'disp':True})
-        sy1 = self.estimate_sy(data,h1.h_res.x,data1.shape[0])
-        sy2 = self.estimate_sy(data,h2.h_res.x,data2.shape[0])
+        sy1 = self.estimate_sy(data1,h1.h_res.x,data1.shape[0])
+        sy2 = self.estimate_sy(data2,h2.h_res.x,data2.shape[0])
         return h1, sy1, h2, sy2, pg, f
 
     def nll(self,pg,h1,h2,Z1,Z2,L1,L2,LX,N1,N2,M):
@@ -229,8 +229,8 @@ class fit_pg_pe(fit_pg):
         x0 = [0.01, 0.01] #self.initial_guess(f)
         pg = optimize.minimize(f,x0,bounds=((-1.0,1.0),(-1.0,1.0)),
                                      options={'disp':False})
-        sy1 = self.estimate_sy(data,h1.h_res.x,data1.shape[0])
-        sy2 = self.estimate_sy(data,h2.h_res.x,data2.shape[0])
+        sy1 = self.estimate_sy(data1,h1.h_res.x,data1.shape[0])
+        sy2 = self.estimate_sy(data2,h2.h_res.x,data2.shape[0])
         return h1, sy1, h2, sy2, pg, f
 
     def initial_guess(self,f,start,finish,step,jac=True):
