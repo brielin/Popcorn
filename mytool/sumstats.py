@@ -83,7 +83,7 @@ class sumstats_1_trait(object):
             data.index = data['id']
         else:
             data = pd.read_table(sfile,sep='\t',header=None,
-                                 columns=['chr','id','pos','af','a1','a2',
+                                 names=['chr','id','pos','af','a1','a2',
                                           'N1','N2','beta','SE','pv'])
             data['N'] = data['N1']+data['N2']
             data['Z'] = data['beta']/data['SE']
