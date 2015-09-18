@@ -51,6 +51,7 @@ def main(args):
                                 'for dense panels.',type=int,default=10000)
     # Arguments exclusive to fit mode
     parser_fit = subparsers.add_parser('fit')
+    parser_fit.add_argument('--old_format',default=False, action='store_true')
     parser_fit.add_argument('--sfile',help='Specify summary statistics file')
     parser_fit.add_argument('--sfile1',help='Specify summary statistics file')
     parser_fit.add_argument('--sfile2',help='Specify summary statistics file')

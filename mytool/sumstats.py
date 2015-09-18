@@ -16,7 +16,7 @@ class sumstats_1_trait(object):
     Class for Sumstats objects.
     '''
     def __init__(self,scores,args):
-        data1, id_type = self.parse_input(args.sfile)
+        data1, id_type = self.parse_input(args.sfile,args.old_format)
         data1 = data1.loc[~data1.index.duplicated()]
         print(len(data1),"SNPs detected in input.")
         self.id_type = id_type
@@ -41,45 +41,54 @@ class sumstats_1_trait(object):
               "compliment SNPs.")
         self.data = data.loc[align1!=0]
 
-    def parse_input(self,sfile):
-        DF = pd.read_table(sfile,sep='\s*',engine='python')
-        data = pd.DataFrame()
-        try:
-            data['id'] = DF['rsid']
-            id_type = 'rsid'
-        except KeyError:
+    def parse_input(self,sfile,old_format):
+        if not old_format:
+            DF = pd.read_table(sfile,sep='\s*',engine='python')
+            data = pd.DataFrame()
             try:
-                data['id'] = 'chr'+DF['chr'].map(str)+':'+DF['pos'].map(str)
-                id_type = 'pos'
+                data['id'] = DF['rsid']
+                id_type = 'rsid'
             except KeyError:
-                raise ValueError('Must provide either "rsid" or "chr" and "pos"')
-        try:
-            data['a1'] = DF['a1']
-            data['a2'] = DF['a2']
-        except KeyError:
-            raise ValueError('Must provide allele names "a1" and "a2"')
-        try:
-            data['af'] = DF['af']
-        except KeyError:
-            data['af'] = np.nan
-            warnings.warn('Warning: Study AF not provided. Defulating to'
-                          'ignoring variants where minor allele is the '
-                          'compliment of the major allele.')
-        try:
-            data['N'] = DF['N']
-        except KeyError:
-            raise ValueError('Must provide number of samples "N"')
-        try:
-            data['beta'] = DF['beta']
-            data['SE'] = DF['SE']
+                try:
+                    data['id'] = 'chr'+DF['chr'].map(str)+':'+DF['pos'].map(str)
+                    id_type = 'pos'
+                except KeyError:
+                    raise ValueError('Must provide either "rsid" or "chr" and "pos"')
+            try:
+                data['a1'] = DF['a1']
+                data['a2'] = DF['a2']
+            except KeyError:
+                raise ValueError('Must provide allele names "a1" and "a2"')
+            try:
+                data['af'] = DF['af']
+            except KeyError:
+                data['af'] = np.nan
+                warnings.warn('Warning: Study AF not provided. Defulating to'
+                              'ignoring variants where minor allele is the '
+                              'compliment of the major allele.')
+            try:
+                data['N'] = DF['N']
+            except KeyError:
+                raise ValueError('Must provide number of samples "N"')
+            try:
+                data['beta'] = DF['beta']
+                data['SE'] = DF['SE']
+                data['Z'] = data['beta']/data['SE']
+            except KeyError:
+                try:
+                    data['Z'] = DF['Z']
+                except KeyError:
+                    raise ValueError('Must provide either signed Z-scores "Z" or'
+                                     '"beta" and "SE"')
+            data.index = data['id']
+        else:
+            data = pd.read_table(sfile,sep='\t',header=None,
+                                 columns=['chr','id','pos','af','a1','a2',
+                                          'N1','N2','beta','SE','pv'])
+            data['N'] = data['N1']+data['N2']
             data['Z'] = data['beta']/data['SE']
-        except KeyError:
-            try:
-                data['Z'] = DF['Z']
-            except KeyError:
-                raise ValueError('Must provide either signed Z-scores "Z" or'
-                                 '"beta" and "SE"')
-        data.index = data['id']
+            data = data[['id','af','a1','a2','N','beta','SE','Z']]
+            id_type='rsid'
         return data, id_type
 
     # Similar enough to the one in compute.py to be rolled into one function
