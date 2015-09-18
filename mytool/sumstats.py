@@ -139,6 +139,8 @@ class sumstats_2_trait(sumstats_1_trait):
     def __init__(self,scores,args):
         data1, id_type1 = self.parse_input(args.sfile1)
         data2, id_type2 = self.parse_input(args.sfile2)
+        data1 = data1.loc[~np.array(data1.index.duplicated(),dtype=bool)]
+        data2 = data2.loc[~np.array(data2.index.duplicated(),dtype=bool)]
         try:
             assert id_type1==id_type2
         except AssertionError:
