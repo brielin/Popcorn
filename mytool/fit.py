@@ -111,7 +111,7 @@ class fit_h1(object):
         return -1.0*l
 
     def write(self,outfile):
-        print(res.res.to_string())
+        print(self.res.to_string())
         self.res.to_csv(outfile,sep='\t',na_rep='NaN')
 
 class fit_pg(fit_h1):
