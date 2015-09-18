@@ -75,7 +75,6 @@ class fit_h1(object):
         res = np.array([self.h_res.x, self.sy])
         self.res = pd.DataFrame(np.vstack((res,np.tile(np.nan,len(res)))).T,
                                 index=['h','sy'],columns=['Val','SE'])
-        embed()
         def close_call(x):
             res = self.__call__(x,args)
             return res[0].x, res[1]
