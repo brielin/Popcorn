@@ -163,8 +163,13 @@ class sumstats_2_trait(sumstats_1_trait):
         except KeyError:
             af1, af2 = scores['af1'], scores['af2']
             self.two_pops = True
-        align1=self.align_to_scores(data1,scores['a1'],scores['a2'],af1)
-        align2=self.align_to_scores(data2,scores['a1'],scores['a2'],af2)
+        if not args.no_align:
+            align1=self.align_to_scores(data1,scores['a1'],scores['a2'],af1)
+            align2=self.align_to_scores(data2,scores['a1'],scores['a2'],af2)
+        else:
+            align1=np.ones((len(comm_snps)))
+            align2=np.ones((len(comm_snps)))
+
         # data = pd.DataFrame()
         # try:
         #     data = scores[['chr','pos','id','a1','a2','score']]
