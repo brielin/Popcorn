@@ -29,8 +29,7 @@ class jackknife(object):
         elif N < 10000:
             bs = 100
         else:
-            bs = 200
-        nblocks = N/bs
+            nblocks=200
         A = np.floor(np.linspace(0,N,nblocks+1)).astype(int)
         return zip(A[:-1],A[1:]), bs
 
