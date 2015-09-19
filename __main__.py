@@ -69,6 +69,7 @@ def main(args):
     parser_fit.add_argument('--tol',help='Specify the convergence tolerance'
                             ' for MLE. Unless you have convergence issues use'
                             ' default',default=.00001)
+    parser_fit.add_argument('--no_jackknife',default=False,action='store_true')
     args = parser.parse_args()
 
     # Set up logger to print to log file and std out

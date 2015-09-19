@@ -26,10 +26,13 @@ class jackknife(object):
     def get_blocks(self,N,args):
         if N < 1000:
             bs = N/10
+            nblocks = N/bs
         elif N < 10000:
             bs = 100
+            nblocks = N/bs
         else:
             nblocks=200
+            bs = N/nblocks
         A = np.floor(np.linspace(0,N,nblocks+1)).astype(int)
         return zip(A[:-1],A[1:]), bs
 

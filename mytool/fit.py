@@ -78,7 +78,7 @@ class fit_h1(object):
         def close_call(x):
             res = self.__call__(x,args)
             return res[0].x, res[1]
-        if jk:
+        if jk and not args.no_jackknife:
             self.jackknife = jackknife.jackknife(close_call, data, res, args)
             self.res['SE'] = self.jackknife.SE
         else:
@@ -129,11 +129,15 @@ class fit_pg(fit_h1):
         self.res = pd.DataFrame(np.vstack((res,np.tile(np.nan,len(res)))).T,
                                 index=['h1','sy1','h2','sy2','pg'],
                                 columns=['Val','SE'])
+        if args.v == 3: print(self.res)
         def close_call(x):
             res = self.__call__(x,args)
             return (res[0].h_res.x, res[1], res[2].h_res.x, res[3], res[4].x)
-        self.jackknife = jackknife.jackknife(close_call,data,res,args)
-        self.res['SE'] = self.jackknife.SE
+        if not args.no_jackknife:
+            self.jackknife = jackknife.jackknife(close_call,data,res,args)
+            self.res['SE'] = self.jackknife.SE
+        else:
+            self.jackknife = None
         self.res['LR'] = 2*(self.null_ll-self.alt_ll)
         self.res['Z'] = self.res['Val']/self.res['SE']
         self.res['P (LRT)'] = 1-stats.chi2.cdf(self.res['LR'],1)
@@ -204,8 +208,11 @@ class fit_pg_pe(fit_pg):
             res = self.__call__(x,args)
             return (res[0].h_res.x, res[1], res[2].h_res.x, res[3],
                     res[4].x[0], res[4].x[1])
-        self.jackknife = jackknife.jackknife(close_call, data, res, args)
-        self.res['SE'] = self.jackknife.SE
+        if not self.no_jackknife:
+            self.jackknife = jackknife.jackknife(close_call, data, res, args)
+            self.res['SE'] = self.jackknife.SE
+        else:
+            self.jackknife = None
         self.res['LR'] = 2*(self.null_ll-self.alt_ll)
         self.res['Z'] = self.res['Val']/self.res['SE']
         self.res['P (LRT)'] = 1-stats.chi2.cdf(self.res['LR'],1)
