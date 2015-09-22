@@ -180,7 +180,7 @@ class sumstats_2_trait(sumstats_1_trait):
         data['N1']=data1['N'] #Gives a warning I don't know why
         data['N2']=data2['N']
         data['Z1']=align1*data1['Z']
-        data['Z2']=align2*data1['Z']
+        data['Z2']=align2*data2['Z']
         try:
             data['beta1']=align1*data1['beta']
             data['beta2']=align2*data2['beta']

@@ -91,7 +91,7 @@ class fit_h1(object):
     def __call__(self,data,args):
         f=lambda x: self.nll(x,data['Z'],data['N'],self.M,data['score'])
         h = optimize.minimize_scalar(f,bounds=(0.0,1.0),method='bounded',
-                                     tol=args.tol, options={'disp':True})
+                                     tol=args.tol, options={'disp':args.v})
         sy = self.estimate_sy(data,h.x,data.shape[0])
         return h, sy, f
 
@@ -144,6 +144,7 @@ class fit_pg(fit_h1):
         self.res['P (Z)'] = 1-stats.chi2.cdf(self.res['Z']**2,1)
 
     def __call__(self,data,args):
+        t=time()
         data1 = data.copy()
         data2 = data.copy()
         try: #two populations
@@ -152,8 +153,12 @@ class fit_pg(fit_h1):
         except KeyError: #one population
             data1[['N','Z']] = data[['N1','Z1']]
             data2[['N','Z']] = data[['N2','Z2']]
+        print(time()-t)
+        t=time()
         h1 = fit_h1(data1,args,jk=False,M=self.M)
         h2 = fit_h1(data2,args,jk=False,M=self.M)
+        print(time()-t)
+        t=time()
         try:
             f = lambda x: self.nll(x,h1.h_res.x,h2.h_res.x,data['Z1'],
                                    data['Z2'],data['score1'],data['score2'],
@@ -169,8 +174,11 @@ class fit_pg(fit_h1):
             data2['beta'] = data['beta2']
         except KeyError:
             pass
+        print(time()-t)
+        t=time()
         pg = optimize.minimize_scalar(f,bounds=(-1.0,1.0),method='bounded',
-                                     options={'disp':True})
+                                     options={'disp':args.v})
+        print(time()-t)
         sy1 = self.estimate_sy(data1,h1.h_res.x,data1.shape[0])
         sy2 = self.estimate_sy(data2,h2.h_res.x,data2.shape[0])
         return h1, sy1, h2, sy2, pg, f
@@ -235,7 +243,7 @@ class fit_pg_pe(fit_pg):
                                self.M)
         x0 = [0.01, 0.01] #self.initial_guess(f)
         pg = optimize.minimize(f,x0,bounds=((-1.0,1.0),(-1.0,1.0)),
-                                     options={'disp':False})
+                                     options={'disp':args.v})
         sy1 = self.estimate_sy(data1,h1.h_res.x,data1.shape[0])
         sy2 = self.estimate_sy(data2,h2.h_res.x,data2.shape[0])
         return h1, sy1, h2, sy2, pg, f
