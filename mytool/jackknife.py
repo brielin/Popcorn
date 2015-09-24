@@ -26,9 +26,12 @@ class jackknife(object):
     def get_blocks(self,N,args):
         if N < 1000:
             bs = N/10
-            nblocks = N/bs
+            nblocks = 10
         elif N < 10000:
-            bs = 100
+            bs = 250
+            nblocks = N/bs
+        elif N < 100000:
+            bs = 500
             nblocks = N/bs
         else:
             nblocks=200
