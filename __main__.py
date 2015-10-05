@@ -50,6 +50,15 @@ def main(args):
     parser_compute.add_argument('--SNPs_to_store',help='Specify size of'
                                 'in memory SNP array. May need to increase'
                                 'for dense panels.',type=int,default=10000)
+    parser_compute.add_argument('--afile',help='Specify ancestry file for'
+                                'conditioning in admixed populations.',
+                                default=None)
+    parser_compute.add_argument('--afile1',help='Specify ancestry file for'
+                                'conditioning in admixed populations.',
+                                default=None)
+    parser_compute.add_argument('--afile2',help='Specify ancestry file for'
+                                'conditioning in admixed populations.',
+                                default=None)
     # Arguments exclusive to fit mode
     parser_fit = subparsers.add_parser('fit')
     parser_fit.add_argument('--old_format',default=False, action='store_true')
@@ -108,7 +117,10 @@ def main(args):
                     and (args.sfile2 is not None):
                 if args.sfile1 is None: args.sfile1 = args.sfile
                 with open(args.cfile,'r') as f:
-                    ncols = len(f.readline().strip().split())
+                    for line in f:
+                        if line[0]!='#':
+                            ncols = len(line.strip().split())
+                            break
                 if ncols == 7:
                     print("Analyzing a pair of traits in one population")
                     scores = pd.read_table(args.cfile,header=None,comment='#',
@@ -130,12 +142,12 @@ def main(args):
                     if args.regions:
                         res = fit.fit_by_region(data.data,args,t='pg_pe',M=M)
                     else:
-                        res = fit.fit_pg_pe(data.data,args,M=M)
+                        res = fit.fit_pg_pe(data.data,args)#,M=M)
                 else:
                     if args.regions:
                         res = fit.fit_by_region(data.data,args,t='pg',M=M)
                     else:
-                        res = fit.fit_pg(data.data,args,M=M)
+                        res = fit.fit_pg(data.data,args)#,M=M)
             else:
                 raise ValueError('Must provide bfile or bfile1, or bfile1 and 2')
             res.write(args.out)
