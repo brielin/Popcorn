@@ -85,6 +85,9 @@ def main(args):
                             ' population prevelance of a binary phenotype.')
     parser_fit.add_argument('--P',default=None,type=float,help='Specify'
                             ' study prevelance of a binary phenotype.')
+    parser_fit.add_argument('--M',default=None,type=int,help='Use M'
+                            ' randomly chosen entries to estimate paramters.'
+                            ' Use only for testing.')
     args = parser.parse_args()
 
     # Set up logger to print to log file and std out
@@ -116,6 +119,10 @@ def main(args):
                 M = scores.shape[0]
                 scores.index = scores['id']
                 data = sumstats.sumstats_1_trait(scores,args)
+                if args.M is not None:
+                    keep = np.sort(np.random.choice(range(M),size=args.M,
+                                                    replace=False))
+                    data = data[keep]
                 if args.regions:
                     res = fit.fit_by_region(data.data,scores,args,t='h1')
                 else:
