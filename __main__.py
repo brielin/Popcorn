@@ -119,7 +119,7 @@ def main(args):
                 M = scores.shape[0]
                 scores.index = scores['id']
                 data = sumstats.sumstats_1_trait(scores,args)
-                if args.M is not None:
+                if (args.M is not None) and (args.M<M):
                     keep = np.sort(np.random.choice(range(M),size=args.M,
                                                     replace=False))
                     data.data = data.data.iloc[keep]
