@@ -120,9 +120,7 @@ def main(args):
                 scores.index = scores['id']
                 data = sumstats.sumstats_1_trait(scores,args)
                 if (args.M is not None) and (args.M<M):
-                    keep = np.sort(np.random.choice(range(M),size=args.M,
-                                                    replace=False))
-                    data.data = data.data.iloc[keep]
+                    data.data = data.data.iloc[range(args.M)]
                 if args.regions:
                     res = fit.fit_by_region(data.data,scores,args,t='h1')
                 else:
