@@ -122,7 +122,7 @@ def main(args):
                 if args.M is not None:
                     keep = np.sort(np.random.choice(range(M),size=args.M,
                                                     replace=False))
-                    data = data[keep]
+                    data.data = data.data.iloc[keep]
                 if args.regions:
                     res = fit.fit_by_region(data.data,scores,args,t='h1')
                 else:
