@@ -50,6 +50,7 @@ def main(args):
     parser_compute.add_argument('--SNPs_to_store',help='Specify size of'
                                 'in memory SNP array. May need to increase'
                                 'for dense panels.',type=int,default=10000)
+    parser_compute.add_argument('--extract',default=None)
     parser_compute.add_argument('--afile',help='Specify ancestry file for'
                                 'conditioning in admixed populations.',
                                 default=None)
@@ -80,6 +81,10 @@ def main(args):
                             ' for MLE. Unless you have convergence issues use'
                             ' default',default=.00001)
     parser_fit.add_argument('--no_jackknife',default=False,action='store_true')
+    parser_fit.add_argument('--K',default=None,type=float,help='Specify'
+                            ' population prevelance of a binary phenotype.')
+    parser_fit.add_argument('--P',default=None,type=float,help='Specify'
+                            ' study prevelance of a binary phenotype.')
     args = parser.parse_args()
 
     # Set up logger to print to log file and std out
@@ -95,6 +100,9 @@ def main(args):
             if args.sfile is None or args.cfile is None:
                 raise ValueError('Must provide summary statistics and'
                                  ' covariance scores.')
+            if (args.K is None) ^ (args.P is None):
+                raise ValueError('Must provide K and P to convert'
+                                 'observed scale to liability scale.')
             if (args.sfile is not None) \
                     ^ (args.sfile1 is not None) \
                     and (args.sfile2 is None):

@@ -35,7 +35,7 @@ class jackknife(object):
             nblocks = N/bs
         else:
             nblocks=200
-            bs = N/nblocks
+            bs = int(N/nblocks)
         A = np.floor(np.linspace(0,N,nblocks+1)).astype(int)
         return zip(A[:-1],A[1:]), bs
 

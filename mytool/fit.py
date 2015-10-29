@@ -70,7 +70,7 @@ class fit_h1(object):
         if M is None: self.M = data.shape[0]
         else: self.M = M
         self.h_res, self.sy, self.ll = self.__call__(data,args)
-        print(self.h_res.x)
+        #print(self.h_res.x)
         self.null_ll = np.array([self.ll([1.0,0.0]), 0.0])
         #self.null_ll = np.array([self.ll(0.0), 0.0])
         self.alt_ll = np.array([self.h_res.fun, 0.0])
@@ -93,13 +93,18 @@ class fit_h1(object):
         self.res['P (Z)'] = 1-stats.chi2.cdf(self.res['Z']**2,1)
 
     def __call__(self,data,args):
-        f=lambda x: self.nll(x,data['Z'],data['N'],self.M,data['score'])
+        W = 1.0/data['score']
+        f=lambda x: self.nll(x,data['Z'],data['N'],self.M,data['score'],W=W)
+        f2=lambda x: self.nll_no_intercept(x,data['Z'],data['N'],self.M,data['score'])
         # h = optimize.minimize_scalar(f,bounds=(0.0,1.0),method='bounded',
         #                              tol=args.tol, options={'disp':args.v})
         # sy = self.estimate_sy(data,h.x,data.shape[0])
-        x0=[1.0,0.1]
+        x0=[1.0,0.01]
         h = optimize.minimize(f,x0,bounds=((None,None),(0.0,1.0)),
                               options={'disp':args.v})
+        if not h.success:
+            sys.stderr.write(h.message+'\n')
+            raise ValueError
         sy = self.estimate_sy(data,h.x[1],data.shape[0])
         return h, sy, f
 
@@ -112,10 +117,20 @@ class fit_h1(object):
         A = (1/(data['N']*var))*(1 + (data['N']/M)*h1*data['score'])
         return np.sum(B**2/A)/M
 
-    def nll(self,x,Z,N,M,score):
+    def nll(self,x,Z,N,M,score,W=None):
         c,h = x
         S = (c + (N/M)*h*score)
 #        S = (1 + (N/M)*x*score)
+        if W is None:
+            l = -0.5*M*np.log(2*np.pi) - 0.5*np.sum(np.log(S))\
+                - 0.5*np.sum(Z**2/S)
+        else:
+            l = -0.5*M*np.log(2*np.pi) - 0.5*np.sum(W*np.log(S))\
+                - 0.5*np.sum(W*(Z**2/S))
+        return -1.0*l
+
+    def nll_no_intercept(self,x,Z,N,M,score):
+        S = (1 + (N/M)*x*score)
         l = -0.5*M*np.log(2*np.pi) - 0.5*np.sum(np.log(S))\
             - 0.5*np.sum(Z**2/S)
         return -1.0*l
@@ -130,19 +145,24 @@ class fit_pg(fit_h1):
         else: self.M = M
         self.h1_res, self.sy1, self.h2_res, self.sy2, self.pg_res, self.ll =\
             self.__call__(data,args)
-        res = np.array([self.h1_res.h_res.x[1], self.sy1, self.h2_res.h_res.x[1],
-                        self.sy2, self.pg_res.x])
+        h1r = self.h1_res.h_res.x[1]
+        h2r = self.h2_res.h_res.x[1]
+        pgr = self.pg_res.x
+        hgr = pgr*np.sqrt(h1r*h2r)
+        res = np.array([h1r, self.sy1, h2r, self.sy2, hgr, pgr])
         self.null_ll = np.array([self.h1_res.null_ll[0], 0.0,
-                                 self.h2_res.null_ll[0], 0.0, self.ll(0.0)])
+                                 self.h2_res.null_ll[0], 0.0,self.ll(0.0),self.ll(0.0)])
         self.alt_ll = np.array([self.h1_res.alt_ll[0], 0.0,
-                                self.h2_res.alt_ll[0], 0.0, self.pg_res.fun])
+                                self.h2_res.alt_ll[0], 0.0,self.pg_res.fun,self.pg_res.fun])
         self.res = pd.DataFrame(np.vstack((res,np.tile(np.nan,len(res)))).T,
-                                index=['h1','sy1','h2','sy2','pg'],
+                                index=['h1','sy1','h2','sy2','hg','pg'],
                                 columns=['Val','SE'])
-        if args.v == 3: print(self.res)
+        print(self.res)
         def close_call(x):
             res = self.__call__(x,args)
-            return (res[0].h_res.x, res[1], res[2].h_res.x, res[3], res[4].x)
+            hg = res[4].x*np.sqrt(res[0].h_res.x[1]*res[2].h_res.x[1])
+            return np.array([res[0].h_res.x[1], res[1], res[2].h_res.x[1],
+                             res[3], hg, res[4].x])
         if not args.no_jackknife:
             self.jackknife = jackknife.jackknife(close_call,data,res,args)
             self.res['SE'] = self.jackknife.SE
@@ -182,11 +202,14 @@ class fit_pg(fit_h1):
             pass
         pg = optimize.minimize_scalar(f,bounds=(-1.0,1.0),method='bounded',
                                      options={'disp':args.v})
+        if not pg.success:
+            sys.stderr.write(pg.message+'\n')
+            raise ValueError
         sy1 = self.estimate_sy(data1,h1.h_res.x[1],data1.shape[0])
         sy2 = self.estimate_sy(data2,h2.h_res.x[1],data2.shape[0])
         return h1, sy1, h2, sy2, pg, f
 
-    def nll(self,pg,h1,h2,Z1,Z2,L1,L2,LX,N1,N2,M):
+    def nll(self,pg,h1,h2,Z1,Z2,L1,L2,LX,N1,N2,M,W=None):
         Z = np.vstack((Z1,Z2)).T
         Z = Z.reshape((len(Z),2,1))
         S11 = 1 + (N1/M)*h1*L1
@@ -197,16 +220,19 @@ class fit_pg(fit_h1):
         logD = np.linalg.slogdet(S)[1]
         SIZ = np.linalg.solve(S,Z)
         ZTSIZ = np.sum(Z*SIZ,axis=(1,2))
-        l = np.sum(-0.5*logD - 0.5*ZTSIZ) - M*np.log(2*np.pi)
+        if W is None:
+            l = np.sum(-0.5*logD - 0.5*ZTSIZ) - M*np.log(2*np.pi)
+        else:
+            l = np.sum(W*(-0.5*logD - 0.5*ZTSIZ)) - M*np.log(2*np.pi)
         return -1.0*l
 
 class fit_pg_pe(fit_pg):
     def __init__(self,data,args,M=None):
         if M is None: self.M = data.shape[0]
         else: self.M = M
-        self.h1_res, self.sy1, self.h2_res, self.sy2,  self.pg_res, self.ll =\
+        self.h1_res, self.sy1, self.h2_res, self.sy2, self.pg_res, self.ll =\
             self.__call__(data,args)
-        res = np.array([self.h1_res.h_res.x, self.sy1, self.h2_res.h_res.x,
+        res = np.array([self.h1_res.h_res.x[1], self.sy1, self.h2_res.h_res.x[1],
                         self.sy2, self.pg_res.x[0], self.pg_res.x[1]])
         self.null_ll = np.array([self.h1_res.null_ll[0], 0.0, self.h2_res.null_ll[0],
                                  0.0, self.ll((0.0,res[5])), self.ll((res[4],0.0))])
@@ -217,7 +243,7 @@ class fit_pg_pe(fit_pg):
                                 columns=['Val','SE'])
         def close_call(x): # GET IT!!??!!
             res = self.__call__(x,args)
-            return (res[0].h_res.x, res[1], res[2].h_res.x, res[3],
+            return np.arr(res[0].h_res.x[1], res[1], res[2].h_res.x[1], res[3],
                     res[4].x[0], res[4].x[1])
         if not args.no_jackknife:
             self.jackknife = jackknife.jackknife(close_call, data, res, args)
@@ -241,14 +267,17 @@ class fit_pg_pe(fit_pg):
             pass
         h1 = fit_h1(data1,args,jk=False,M=self.M)
         h2 = fit_h1(data2,args,jk=False,M=self.M)
-        f = lambda x: self.nll(x,h1.h_res.x,h2.h_res.x,data['Z1'],data['Z2'],
+        f = lambda x: self.nll(x,h1.h_res.x[1],h2.h_res.x[1],data['Z1'],data['Z2'],
                                data['score'],data['N1'],data['N2'],data['Ns'],
                                self.M)
         x0 = [0.01, 0.01] #self.initial_guess(f)
         pg = optimize.minimize(f,x0,bounds=((-1.0,1.0),(-1.0,1.0)),
                                      options={'disp':args.v})
-        sy1 = self.estimate_sy(data1,h1.h_res.x,data1.shape[0])
-        sy2 = self.estimate_sy(data2,h2.h_res.x,data2.shape[0])
+        if not pg.success:
+            sys.stderr.write(pg.message+'\n')
+            raise ValueError
+        sy1 = self.estimate_sy(data1,h1.h_res.x[1],data1.shape[0])
+        sy2 = self.estimate_sy(data2,h2.h_res.x[1],data2.shape[0])
         return h1, sy1, h2, sy2, pg, f
 
     def initial_guess(self,f,start,finish,step,jac=True):

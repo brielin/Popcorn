@@ -45,6 +45,9 @@ class covariance_scores_1_pop(object):
             k = (bed_1.pos[:,2]>args.from_bp)&(bed_1.pos[:,2]<args.to_bp)
             snps_1 = snps_1&k
         snps_to_use = bed_1.sid[snps_1]
+        if args.extract is not None:
+            keep = np.array([l.strip() for l in open(args.extract,'r')])
+            snps_to_use = np.intersect1d(snps_to_use,keep)
         bed_1_index = np.sort(bed_1.sid_to_index(snps_to_use)) #
         pos = bed_1.pos[bed_1_index] #
         bim_1=pd.read_table(bed_1.filename+'.bim',header=None,
@@ -141,7 +144,8 @@ class covariance_scores_1_pop(object):
             A1 = self._condition_ancestry(A1,a1['theta'].values)
         R1 = np.dot(A1.T,A1/N)
         scores[li:ri] += func(R1,li,ri)[0]
-        nstr = ri-li
+        nstr = np.max((1000,ri-li))
+        #nstr = ri-li
         offset = 0
         #out1 = np.zeros((1,nstr-1))
         for i in xrange(ri,self.M,nstr):
@@ -159,7 +163,12 @@ class covariance_scores_1_pop(object):
                 # np.dot(np.atleast_2d(A1[:,jp]/N),A1[:,lbp:jp],out=out1)
                 _out1 = np.hstack((out1,[[1]]))
                 func_ret = func(_out1,lb,j+1)
-                scores[lb:j] += func_ret[1]
+                try:
+                    scores[lb:j] += func_ret[1]
+                except ValueError:
+                    print("Error when setting scores."
+                          " Block width may exceed number of SNPs being stored"
+                          " Try increasing --SNPs_to_store")
                 scores[j] += func_ret[0]
             if A1.shape[1] > args.SNPs_to_store:
                 A1 = A1[:,nstr:]
@@ -182,14 +191,24 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
         bed_2 = Bed(args.bfile2)
         af1 = self.get_allele_frequency(bed_1,args) #
         af2 = self.get_allele_frequency(bed_2,args)
+        print(len(af1), "SNPs in file 1")
+        print(len(af2), "SNPs in file 2")
         snps_1 = (af1>args.maf)&(af1<1-args.maf) #
         snps_2 = (af2>args.maf)&(af2<1-args.maf)
+        print(np.sum(snps_1), "SNPs in file 1 after MAF filter")
+        print(np.sum(snps_2), "SNPs in file 2 after MAF filter")
         if (args.from_bp is not None) and (args.to_bp is not None):
             k1 = (bed_1.pos[:,2]>args.from_bp)&(bed_1.pos[:,2]<args.to_bp)
             k2 = (bed_2.pos[:,2]>args.from_bp)&(bed_2.pos[:,2]<args.to_bp)
             snps_1 = snps_1&k1
             snps_2 = snps_2&k2
         snps_to_use = np.intersect1d(bed_1.sid[snps_1],bed_2.sid[snps_2])
+        print(len(snps_to_use),"SNPs common in both populations")
+        if args.extract is not None:
+            keep = np.array([l.strip() for l in open(args.extract,'r')])
+            print(len(keep),"SNPs to extract")
+            snps_to_use = np.intersect1d(snps_to_use,keep)
+            print(len(snps_to_use),"SNPs remaining after extraction")
         bed_1_index = np.sort(bed_1.sid_to_index(snps_to_use)) #
         bed_2_index = np.sort(bed_2.sid_to_index(snps_to_use))
         if not args.no_align:
@@ -312,7 +331,8 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
         R2 = np.dot(A2.T,A2/self.N[1])
         align_mat = np.outer(alignment[li:ri],alignment[li:ri])
         scores[li:ri] += func(R1,align_mat*R2,li,ri)[0]
-        nstr = ri-li
+        nstr = np.max((1000,ri-li))
+        #nstr = ri-li
         offset = 0
         #out1 = np.zeros((1,nstr-1))
         #out2 = np.zeros((1,nstr-1))
