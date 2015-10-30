@@ -163,7 +163,6 @@ def main(args):
                         res = fit.fit_pg(data.data,args)#,M=M)
             else:
                 raise ValueError('Must provide bfile or bfile1, or bfile1 and 2')
-            embed()
             res.write(args.out)
         elif args.mode == 'compute':
             if (args.bfile is not None) \
