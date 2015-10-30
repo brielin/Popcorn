@@ -157,10 +157,13 @@ class sumstats_2_trait(sumstats_1_trait):
         data1 = data1.loc[comm_snps]
         data2 = data2.loc[comm_snps]
         scores = scores.loc[comm_snps]
-        data1['a1'] = map(lambda x: x.upper(), data1['a1'])
-        data1['a2'] = map(lambda x: x.upper(), data1['a2'])
-        data2['a1'] = map(lambda x: x.upper(), data2['a1'])
-        data2['a2'] = map(lambda x: x.upper(), data2['a2'])
+        try:
+            data1['a1'] = map(lambda x: x.upper(), data1['a1'])
+            data1['a2'] = map(lambda x: x.upper(), data1['a2'])
+            data2['a1'] = map(lambda x: x.upper(), data2['a1'])
+            data2['a2'] = map(lambda x: x.upper(), data2['a2'])
+        except AttributeError:
+            pass
         try:
             af1, af2 = scores['af'], scores['af']
             self.two_pops = False
