@@ -54,10 +54,15 @@ class sumstats_1_trait(object):
                 id_type = 'rsid'
             except KeyError:
                 try:
-                    data['id'] = 'chr'+DF['chr'].map(str)+':'+DF['pos'].map(str)
-                    id_type = 'pos'
+                    data['id'] = DF['SNP']
+                    id_type = 'rsid'
                 except KeyError:
-                    raise ValueError('Must provide either "rsid" or "chr" and "pos"')
+                    try:
+                        data['id'] = 'chr'+DF['chr'].map(str)+':'+DF['pos'].map(str)
+                        id_type = 'pos'
+                    except KeyError:
+                        raise ValueError('Must provide either "rsid", "SNP"'
+                                             ' or "chr" and "pos"')
             try:
                 data['a1'] = DF['a1']
                 data['a2'] = DF['a2']

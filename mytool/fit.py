@@ -87,6 +87,8 @@ class fit_h1(object):
             self.res['SE'] = self.jackknife.SE
         else:
             self.jackknife = None
+        if (args.K1 is not None)&(args.P1 is not None):
+            self.convert_to_liability(args.K1,args.P1)
         self.res['LR'] = 2*(self.null_ll-self.alt_ll)
         self.res['Z'] = self.res['Val']/self.res['SE']
         self.res['P (LRT)'] = 1-stats.chi2.cdf(self.res['LR'],1)
@@ -139,6 +141,14 @@ class fit_h1(object):
         print(self.res.to_string())
         self.res.to_csv(outfile,sep='\t',na_rep='NaN')
 
+    def convert_to_liability(self,K,P):
+        self.res['Lia']=np.nan
+        ho=self.res['Val']['h']
+        tau=stats.norm.ppf(1-K)
+        hl=ho*((K*(1-K))**2)/(stats.norm.pdf(tau)**2*P*(1-P))
+        self.res['Lia']['h']=hl
+        return hl
+
 class fit_pg(fit_h1):
     def __init__(self,data,args,M=None):
         if M is None: self.M = data.shape[0]
@@ -168,6 +178,9 @@ class fit_pg(fit_h1):
             self.res['SE'] = self.jackknife.SE
         else:
             self.jackknife = None
+        if (args.K1 is not None)&(args.P1 is not None)\
+                &(args.K2 is not None)&(args.P2 is not None):
+            self.convert_to_liability(args.K1,args.P1,args.K2,args.P2)
         self.res['LR'] = 2*(self.null_ll-self.alt_ll)
         self.res['Z'] = self.res['Val']/self.res['SE']
         self.res['P (LRT)'] = 1-stats.chi2.cdf(self.res['LR'],1)
@@ -225,6 +238,21 @@ class fit_pg(fit_h1):
         else:
             l = np.sum(W*(-0.5*logD - 0.5*ZTSIZ)) - M*np.log(2*np.pi)
         return -1.0*l
+
+    def convert_to_liability(self,K1,P1,K2,P2):
+        self.res['Lia']=np.nan
+        hl1 = self.h1_res.convert_to_liability(K1,P1)
+        hl2 = self.h2_res.convert_to_liability(K2,P2)
+        hgo=self.res['Val']['hg']
+        tau1=stats.norm.ppf(1-K1)
+        tau2=stats.norm.ppf(1-K2)
+        hgl=hgo*(K1*(1-K1)*K2*(1-K2))/\
+            (stats.norm.pdf(tau1)*stats.norm.pdf(tau2)*np.sqrt(P1*(1-P1)*P2*(1-P2)))
+        self.res['Lia']['h1']=hl1
+        self.res['Lia']['h2']=hl2
+        self.res['Lia']['hg']=hgl
+        self.res['Lia']['pg']=hgl/np.sqrt(hl1*hl2)
+        return hgl
 
 class fit_pg_pe(fit_pg):
     def __init__(self,data,args,M=None):

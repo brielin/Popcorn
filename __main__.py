@@ -81,10 +81,14 @@ def main(args):
                             ' for MLE. Unless you have convergence issues use'
                             ' default',default=.00001)
     parser_fit.add_argument('--no_jackknife',default=False,action='store_true')
-    parser_fit.add_argument('--K',default=None,type=float,help='Specify'
-                            ' population prevelance of a binary phenotype.')
-    parser_fit.add_argument('--P',default=None,type=float,help='Specify'
-                            ' study prevelance of a binary phenotype.')
+    parser_fit.add_argument('--K1',default=None,type=float,help='Specify'
+                            ' population prevelance of binary phenotype 1.')
+    parser_fit.add_argument('--P1',default=None,type=float,help='Specify'
+                            ' study prevelance of binary phenotype 1.')
+    parser_fit.add_argument('--K2',default=None,type=float,help='Specify'
+                            ' population prevelance of binary phenotype 2.')
+    parser_fit.add_argument('--P2',default=None,type=float,help='Specify'
+                            ' study prevelance of binary phenotype 2.')
     parser_fit.add_argument('--M',default=None,type=int,help='Use M'
                             ' randomly chosen entries to estimate paramters.'
                             ' Use only for testing.')
@@ -103,7 +107,7 @@ def main(args):
             if args.sfile is None or args.cfile is None:
                 raise ValueError('Must provide summary statistics and'
                                  ' covariance scores.')
-            if (args.K is None) ^ (args.P is None):
+            if (args.K1 is None) ^ (args.P1 is None):
                 raise ValueError('Must provide K and P to convert'
                                  'observed scale to liability scale.')
             if (args.sfile is not None) \
