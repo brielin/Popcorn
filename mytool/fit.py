@@ -218,6 +218,8 @@ class fit_pg(fit_h1):
         if not pg.success:
             sys.stderr.write(pg.message+'\n')
             raise ValueError
+        if h1.h_res.x[1] == 0 or h2.h_res.x[1] == 0:
+            pg.x = 0.0
         sy1 = self.estimate_sy(data1,h1.h_res.x[1],data1.shape[0])
         sy2 = self.estimate_sy(data2,h2.h_res.x[1],data2.shape[0])
         return h1, sy1, h2, sy2, pg, f

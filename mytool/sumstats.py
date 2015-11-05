@@ -67,7 +67,12 @@ class sumstats_1_trait(object):
                 data['a1'] = DF['a1']
                 data['a2'] = DF['a2']
             except KeyError:
-                raise ValueError('Must provide allele names "a1" and "a2"')
+                try:
+                    data['a1'] = DF['A1']
+                    data['a2'] = DF['A2']
+                except KeyError:
+                    raise ValueError('Must provide allele names "a1" and "a2"'
+                                     ' or "A1" and "A2"')
             try:
                 data['af'] = DF['af']
             except KeyError:
