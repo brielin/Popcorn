@@ -89,8 +89,8 @@ def main(args):
                             ' population prevelance of binary phenotype 2.')
     parser_fit.add_argument('--P2',default=None,type=float,help='Specify'
                             ' study prevelance of binary phenotype 2.')
-    parser_fit.add_argument('--M',default=None,type=int,help='Use M'
-                            ' randomly chosen entries to estimate paramters.'
+    parser_fit.add_argument('--M',default=None,type=int,help='Use first M'
+                            ' entries to estimate paramters.'
                             ' Use only for testing.')
     args = parser.parse_args()
 
@@ -155,6 +155,8 @@ def main(args):
                 M = scores.shape[0]
                 scores.index = scores['id']
                 data = sumstats.sumstats_2_trait(scores,args)
+                if (args.M is not None) and (args.M<M):
+                    data.data = data.data.iloc[range(args.M)]
                 if data.overlap:
                     if args.regions:
                         res = fit.fit_by_region(data.data,args,t='pg_pe',M=M)
