@@ -101,9 +101,14 @@ class fit_h1(object):
         # h = optimize.minimize_scalar(f,bounds=(0.0,1.0),method='bounded',
         #                              tol=args.tol, options={'disp':args.v})
         # sy = self.estimate_sy(data,h.x,data.shape[0])
-        x0=[1.0,0.01]
-        h = optimize.minimize(f,x0,bounds=((None,None),(0.0,1.0)),
-                              options={'disp':args.v})
+        for x1 in np.arange(0.01,1,0.05):
+            x0=[1.0,x1]
+            h = optimize.minimize(f,x0,bounds=((None,None),(0.0,1.0)),
+                                  options={'disp':args.v})
+            if not h.success:
+                continue
+            else:
+                break
         if not h.success:
             sys.stderr.write(h.message+'\n')
             raise ValueError
