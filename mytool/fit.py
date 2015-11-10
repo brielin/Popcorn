@@ -71,7 +71,11 @@ class fit_h1(object):
         else: self.M = M
         self.h_res, self.sy, self.ll = self.__call__(data,args)
         #print(self.h_res.x)
-        self.null_ll = np.array([self.ll([1.0,0.0]), 0.0])
+        if args.no_intercept:
+            self.null_ll = np.array([self.ll(0.0), 0.0])
+        else:
+            # This is still wrong though
+            self.null_ll = np.array([self.ll([1.0,0.0]), 0.0])
         #self.null_ll = np.array([self.ll(0.0), 0.0])
         self.alt_ll = np.array([self.h_res.fun, 0.0])
         res = np.array([self.h_res.x[1], self.sy])
