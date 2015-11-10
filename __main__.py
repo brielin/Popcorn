@@ -92,6 +92,7 @@ def main(args):
     parser_fit.add_argument('--M',default=None,type=int,help='Use first M'
                             ' entries to estimate paramters.'
                             ' Use only for testing.')
+    parser_fit.app_argument('--no_intercept',default=False,action='store_true')
     args = parser.parse_args()
 
     # Set up logger to print to log file and std out

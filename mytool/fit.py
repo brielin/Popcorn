@@ -96,23 +96,27 @@ class fit_h1(object):
 
     def __call__(self,data,args):
         W = 1.0/data['score']
-        f=lambda x: self.nll(x,data['Z'],data['N'],self.M,data['score'],W=W)
-        f2=lambda x: self.nll_no_intercept(x,data['Z'],data['N'],self.M,data['score'])
-        # h = optimize.minimize_scalar(f,bounds=(0.0,1.0),method='bounded',
-        #                              tol=args.tol, options={'disp':args.v})
-        # sy = self.estimate_sy(data,h.x,data.shape[0])
-        for x1 in np.arange(0.01,1,0.05):
-            x0=[1.0,x1]
-            h = optimize.minimize(f,x0,bounds=((None,None),(0.0,1.0)),
-                                  options={'disp':args.v})
+        if args.no_intercept:
+            f=lambda x: self.nll_no_intercept(x,data['Z'],data['N'],self.M,
+                                               data['score'],W=W)
+            h = optimize.minimize_scalar(f,bounds=(0.0,1.0),method='bounded',
+                                         tol=args.tol, options={'disp':args.v})
+            sy = self.estimate_sy(data,h.x,data.shape[0])
+            h.x = [1.0,h.x]
+        else:
+            f=lambda x: self.nll(x,data['Z'],data['N'],self.M,data['score'],W=W)
+            for x1 in np.arange(0.01,1,0.05):
+                x0=[1.0,x1]
+                h = optimize.minimize(f,x0,bounds=((None,None),(0.0,1.0)),
+                                      options={'disp':args.v})
+                if not h.success:
+                    continue
+                else:
+                    break
             if not h.success:
-                continue
-            else:
-                break
-        if not h.success:
-            sys.stderr.write(h.message+'\n')
-            raise ValueError
-        sy = self.estimate_sy(data,h.x[1],data.shape[0])
+                sys.stderr.write(h.message+'\n')
+                raise ValueError
+            sy = self.estimate_sy(data,h.x[1],data.shape[0])
         return h, sy, f
 
     def estimate_sy(self,data,h1,M):
@@ -136,10 +140,14 @@ class fit_h1(object):
                 - 0.5*np.sum(W*(Z**2/S))
         return -1.0*l
 
-    def nll_no_intercept(self,x,Z,N,M,score):
+    def nll_no_intercept(self,x,Z,N,M,score,W=None):
         S = (1 + (N/M)*x*score)
-        l = -0.5*M*np.log(2*np.pi) - 0.5*np.sum(np.log(S))\
-            - 0.5*np.sum(Z**2/S)
+        if W is None:
+            l = -0.5*M*np.log(2*np.pi) - 0.5*np.sum(np.log(S))\
+                - 0.5*np.sum(Z**2/S)
+        else:
+            l = -0.5*M*np.log(2*np.pi) - 0.5*np.sum(W*np.log(S))\
+                - 0.5*np.sum(W*(Z**2/S))
         return -1.0*l
 
     def write(self,outfile):
