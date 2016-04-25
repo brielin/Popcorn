@@ -4,9 +4,9 @@ Popcorn
 Popcorn is a program for estimaing the correlation of causal variant effect
 sizes across populations in GWAS. Estimation involves two steps:
 
-1) Compute mode: computing cross-population scores from a reference panel,
+1. Compute mode: computing cross-population scores from a reference panel,
 these roughly corresponde to the similarity of the LD at each SNP across the populations
-2) Fit mode: fitting the heritability and transethnic genetic correlation of
+2. Fit mode: fitting the heritability and transethnic genetic correlation of
 a pair of summary statistics files to the scores
 
 Example usage:
