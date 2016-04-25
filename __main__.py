@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 from __future__ import division
 from __future__ import print_function
-from mytool import fit
-from mytool import compute
-from mytool import sumstats
+from popcorn import fit
+from popcorn import compute
+from popcorn import sumstats
 import numpy as np
 import pandas as pd
 import time
@@ -13,14 +13,36 @@ import logging
 import traceback
 from IPython import embed
 
+
+class Logger(object):
+    def __init__(self,fname):
+        self.terminal = sys.stdout
+        self.log = open(fname+".log", "a")
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+
+    def flush(self):
+        #this flush method is needed for python 3 compatibility.
+        #this handles the flush command by doing nothing.
+        #you might want to specify some extra behavior here.
+        pass
+
+__version__='0.9.0'
+header='Popcorn version '+__version__+'\n'\
+'(C) 2015-2016 Brielin C Brown\n'\
+'University of California, Berkeley\n'\
+'GNU General Public License v3\n'
+
 def main(args):
     # Arguments common to compute and fit modes
     parser = argparse.ArgumentParser()
     parser.add_argument('-v',help='Specify output verbosity',type=int,
                         choices=[0,1,2,3])
-    parser.add_argument('--out',help='Specify output file',default='my_tool.out')
+    parser.add_argument('--out',help='Specify output file',default='popcorn.out')
     parser.add_argument('--maf',help='Specify MAF cutoff',type=float,
-                        default=0.01)
+                        default=0.05)
     parser.add_argument('--per_allele',help='Use the per-allele effects model'
                         ' rather than the standardized effects model.',
                         default=False,action='store_true')
@@ -43,29 +65,33 @@ def main(args):
     parser_compute.add_argument('--window_size',help='Specify window size',
                                 default=1000,type=int)
     parser_compute.add_argument('--window_type',help='Specify window type'
-                                ' (SNP,BP)',default='BP')
+                                ' (SNP,KBP)',default='KBP')
     parser_compute.add_argument('--SNPs_to_read',help='Specify number of SNPs'
-                                'to read at a time. Do not set yourself',
+                                'to read at a time. For debugging only.',
                                 default=1000,type=int)
     parser_compute.add_argument('--SNPs_to_store',help='Specify size of'
                                 'in memory SNP array. May need to increase'
-                                'for dense panels.',type=int,default=10000)
+                                'for very dense panels or wide window sizes.',
+                                type=int,default=10000)
     parser_compute.add_argument('--extract',default=None)
-    parser_compute.add_argument('--afile',help='Specify ancestry file for'
-                                'conditioning in admixed populations.',
-                                default=None)
-    parser_compute.add_argument('--afile1',help='Specify ancestry file for'
-                                'conditioning in admixed populations.',
-                                default=None)
-    parser_compute.add_argument('--afile2',help='Specify ancestry file for'
-                                'conditioning in admixed populations.',
-                                default=None)
+    # parser_compute.add_argument('--afile',help='Specify ancestry file for'
+    #                             'conditioning in admixed populations.',
+    #                             default=None)
+    # parser_compute.add_argument('--afile1',help='Specify ancestry file for'
+    #                             'conditioning in admixed populations.',
+    #                             default=None)
+    # parser_compute.add_argument('--afile2',help='Specify ancestry file for'
+    #                             'conditioning in admixed populations.',
+    #                             default=None)
     # Arguments exclusive to fit mode
     parser_fit = subparsers.add_parser('fit')
-    parser_fit.add_argument('--old_format',default=False, action='store_true')
-    parser_fit.add_argument('--sfile',help='Specify summary statistics file')
-    parser_fit.add_argument('--sfile1',help='Specify summary statistics file')
-    parser_fit.add_argument('--sfile2',help='Specify summary statistics file')
+    # parser_fit.add_argument('--old_format',default=False, action='store_true')
+    parser_fit.add_argument('--sfile',help='Specify tab delimited'
+                            ' summary statistics file')
+    parser_fit.add_argument('--sfile1',help='Specify tab delimited'
+                            ' summary statistics file for population 1')
+    parser_fit.add_argument('--sfile2',help='Specify tab delimited'
+                            ' summary statistics file for population 2')
     parser_fit.add_argument('--cfile',help='Specify covariance scores file')
     parser_fit.add_argument('--Ns',help='Either 1) the number'
                             ' of overlapping samples or 2) proportion of'
@@ -80,7 +106,9 @@ def main(args):
     parser_fit.add_argument('--tol',help='Specify the convergence tolerance'
                             ' for MLE. Unless you have convergence issues use'
                             ' default',default=.00001)
-    parser_fit.add_argument('--no_jackknife',default=False,action='store_true')
+    parser_fit.add_argument('--no_jackknife',default=False,action='store_true',
+                            help='Just compute the point estimate without computing'
+                            ' the jackknife standard error.')
     parser_fit.add_argument('--K1',default=None,type=float,help='Specify'
                             ' population prevelance of binary phenotype 1.')
     parser_fit.add_argument('--P1',default=None,type=float,help='Specify'
@@ -92,22 +120,26 @@ def main(args):
     parser_fit.add_argument('--M',default=None,type=int,help='Use first M'
                             ' entries to estimate paramters.'
                             ' Use only for testing.')
-    parser_fit.add_argument('--no_intercept',default=False,action='store_true')
+    parser_fit.add_argument('--no_intercept',default=False,action='store_true',
+                            help='Fixes intercept of heritability to be 1.0.')
     args = parser.parse_args()
 
     # Set up logger to print to log file and std out
-    logging.basicConfig(level=logging.INFO, format='%(message)s')
-    logger = logging.getLogger()
-    logger.addHandler(logging.FileHandler(args.out+'.log'))
-    print = logger.info
+    # logging.basicConfig(level=logging.INFO, format='%(message)s')
+    # logger = logging.getLogger()
+    # logger.addHandler(logging.FileHandler(args.out+'.log'))
+    # print = logger.info
 
+    sys.stdout = Logger(args.out+'.o')
+    sys.stderr = Logger(args.out+'.e')
+    print(header)
+    print('Invoking command: python '+' '.join(sys.argv))
     print('Beginning analysis at {T}'.format(T=time.ctime()))
     start_time = time.time()
     try:
         if args.mode == 'fit':
-            if args.sfile is None or args.cfile is None:
-                raise ValueError('Must provide summary statistics and'
-                                 ' covariance scores.')
+            if args.cfile is None:
+                raise ValueError('Must provide summary covariance scores.')
             if (args.K1 is None) ^ (args.P1 is None):
                 raise ValueError('Must provide K and P to convert'
                                  'observed scale to liability scale.')
@@ -127,7 +159,7 @@ def main(args):
                 if (args.M is not None) and (args.M<M):
                     data.data = data.data.iloc[range(args.M)]
                 if args.regions:
-                    res = fit.fit_by_region(data.data,scores,args,t='h1')
+                    res = fit.fit_by_region(data.data,args,t='h1')
                 else:
                     res = fit.fit_h1(data.data,args,M=M)
             elif (args.sfile is not None) \
@@ -162,14 +194,14 @@ def main(args):
                     if args.regions:
                         res = fit.fit_by_region(data.data,args,t='pg_pe',M=M)
                     else:
-                        res = fit.fit_pg_pe(data.data,args)#,M=M)
+                        res = fit.fit_pg_pe(data.data,args,M=M)
                 else:
                     if args.regions:
                         res = fit.fit_by_region(data.data,args,t='pg',M=M)
                     else:
-                        res = fit.fit_pg(data.data,args)#,M=M)
+                        res = fit.fit_pg(data.data,args,M=M)
             else:
-                raise ValueError('Must provide bfile or bfile1, or bfile1 and 2')
+                raise ValueError('Must provide sfile or sfile1, or sfile1 and 2')
             res.write(args.out)
         elif args.mode == 'compute':
             if (args.bfile is not None) \
@@ -186,8 +218,9 @@ def main(args):
                 raise ValueError('Must provide bfile or bfile1, or bfile1 and 2')
             scores.write(args)
     except Exception:
-        ex_type, ex, tb = sys.exc_info()
-        print(traceback.format_exc(ex))
+        # ex_type, ex, tb = sys.exc_info()
+        # traceback.print_last()
+        # print(traceback.format_exc(ex))
         raise
     print('Analysis finished at {T}'.format(T=time.ctime()) )
     time_elapsed = round(time.time()-start_time,2)

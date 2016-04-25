@@ -12,12 +12,12 @@ from time import time
 from . import jackknife
 
 class fit_by_region(object):
-    def __init__(self,data,scores,args,t='h1'):
-        types = {'h1':fit_h1,'pg':fit_pg,'pg_pe':fit_pg_pe}
+    def __init__(self,data,args,t,M):
+        types = {'h1':fit_h,'pg':fit_pg,'pg_pe':fit_pg_pe}
         regions = pd.read_table(args.regions,sep='\s*')
         if regions['chr'][0][0]=='c':
             regions['chr'] = map(lambda x: int(x[3:]), regions['chr'])
-        regions['M'] = self.get_M_by_region(regions,scores)
+        regions['M'] = self.get_M_by_region(regions,data)
         fit_list = []
         for chm,start,end,M in regions.values:
             keep = (data['chr']==chm)&(data['pos']>start)&(data['pos']<end)
@@ -59,25 +59,26 @@ class fit_by_region(object):
     def write(self,outfile):
         for k in self.__dict__.keys():
             try:
-                self.__dict__[k].to_csv(outfile+'.'+k,sep='\t')
+                #self.__dict__[k].to_csv(outfile+'.'+k,sep='\t',na_rep='NaN')
+                f=open(outfile+'.'+k,'w')
                 print(self.__dict__[k].to_string())
+                print(self.__dict__[k].to_string(),file=f)
             except AttributeError:
                 pass
 
 
-class fit_h1(object):
+class fit_h(object):
     def __init__(self,data,args,jk=True,M=None):
         if M is None: self.M = data.shape[0]
         else: self.M = M
         self.h_res, self.sy, self.ll = self.__call__(data,args)
         #print(self.h_res.x)
-        if args.no_intercept:
-            self.null_ll = np.array([self.ll(0.0), 0.0])
-        else:
-            # This is still wrong though
-            self.null_ll = np.array([self.ll([1.0,0.0]), 0.0])
-        #self.null_ll = np.array([self.ll(0.0), 0.0])
-        self.alt_ll = np.array([self.h_res.fun, 0.0])
+        # if args.no_intercept:
+        #     self.null_ll = np.array([self.ll(0.0), 0.0])
+        # else:
+        #     # This is still wrong though
+        #     self.null_ll = np.array([self.ll([1.0,0.0]), 0.0])
+        # self.alt_ll = np.array([self.h_res.fun, 0.0])
         res = np.array([self.h_res.x[1], self.sy])
         #res = np.array([self.h_res.x, self.sy])
         self.res = pd.DataFrame(np.vstack((res,np.tile(np.nan,len(res)))).T,
@@ -93,18 +94,18 @@ class fit_h1(object):
             self.jackknife = None
         if (args.K1 is not None)&(args.P1 is not None):
             self.convert_to_liability(args.K1,args.P1)
-        self.res['LR'] = 2*(self.null_ll-self.alt_ll)
         self.res['Z'] = self.res['Val']/self.res['SE']
-        self.res['P (LRT)'] = 1-stats.chi2.cdf(self.res['LR'],1)
         self.res['P (Z)'] = 1-stats.chi2.cdf(self.res['Z']**2,1)
+        # self.res['LR'] = 2*(self.null_ll-self.alt_ll)
+        # self.res['P (LRT)'] = 1-stats.chi2.cdf(self.res['LR'],1)
 
     def __call__(self,data,args):
-        W = 1.0/data['score']
+        W = 1.0/np.maximum(data['score'],np.ones(data['score'].shape))
         if args.no_intercept:
             f=lambda x: self.nll_no_intercept(x,data['Z'],data['N'],self.M,
                                                data['score'],W=W)
             h = optimize.minimize_scalar(f,bounds=(0.0,1.0),method='bounded',
-                                         tol=args.tol, options={'disp':args.v})
+                                         options={'disp':args.v-1,'xatol':args.tol})
             sy = self.estimate_sy(data,h.x,data.shape[0])
             h.x = [1.0,h.x]
         else:
@@ -112,14 +113,14 @@ class fit_h1(object):
             for x1 in np.arange(0.01,1,0.05):
                 x0=[1.0,x1]
                 h = optimize.minimize(f,x0,bounds=((None,None),(0.0,1.0)),
-                                      options={'disp':args.v})
+                                      options={'disp':args.v-1})
                 if not h.success:
                     continue
                 else:
                     break
             if not h.success:
                 sys.stderr.write(h.message+'\n')
-                raise ValueError
+                h.x = [np.nan,np.nan]
             sy = self.estimate_sy(data,h.x[1],data.shape[0])
         return h, sy, f
 
@@ -166,7 +167,7 @@ class fit_h1(object):
         self.res['Lia']['h']=hl
         return hl
 
-class fit_pg(fit_h1):
+class fit_pg(fit_h):
     def __init__(self,data,args,M=None):
         if M is None: self.M = data.shape[0]
         else: self.M = M
@@ -177,14 +178,16 @@ class fit_pg(fit_h1):
         pgr = self.pg_res.x
         hgr = pgr*np.sqrt(h1r*h2r)
         res = np.array([h1r, self.sy1, h2r, self.sy2, hgr, pgr])
-        self.null_ll = np.array([self.h1_res.null_ll[0], 0.0,
-                                 self.h2_res.null_ll[0], 0.0,self.ll(0.0),self.ll(0.0)])
-        self.alt_ll = np.array([self.h1_res.alt_ll[0], 0.0,
-                                self.h2_res.alt_ll[0], 0.0,self.pg_res.fun,self.pg_res.fun])
+        # self.null_ll = np.array([self.h1_res.null_ll[0], 0.0,
+        #                          self.h2_res.null_ll[0], 0.0,
+        #                          self.ll(1.0),self.ll(0.0)])
+        # self.alt_ll = np.array([self.h1_res.alt_ll[0], 0.0,
+        #                         self.h2_res.alt_ll[0], 0.0,
+        #                         self.pg_res.fun,self.pg_res.fun])
         self.res = pd.DataFrame(np.vstack((res,np.tile(np.nan,len(res)))).T,
                                 index=['h1','sy1','h2','sy2','hg','pg'],
                                 columns=['Val','SE'])
-        print(self.res)
+        if args.v > 0: print("Initial estimate:",self.res)
         def close_call(x):
             res = self.__call__(x,args)
             hg = res[4].x*np.sqrt(res[0].h_res.x[1]*res[2].h_res.x[1])
@@ -198,45 +201,49 @@ class fit_pg(fit_h1):
         if (args.K1 is not None)&(args.P1 is not None)\
                 &(args.K2 is not None)&(args.P2 is not None):
             self.convert_to_liability(args.K1,args.P1,args.K2,args.P2)
-        self.res['LR'] = 2*(self.null_ll-self.alt_ll)
-        self.res['Z'] = self.res['Val']/self.res['SE']
-        self.res['P (LRT)'] = 1-stats.chi2.cdf(self.res['LR'],1)
+        self.res['Z'] = (self.res['Val'])/self.res['SE']
+        self.res['Z']['pg'] = (1.0-self.res['Val']['pg'])/self.res['SE']['pg']
         self.res['P (Z)'] = 1-stats.chi2.cdf(self.res['Z']**2,1)
+        # self.res['P (LRT)'] = 1-stats.chi2.cdf(self.res['LR'],1)
+        # self.res['LR'] = 2*(self.null_ll-self.alt_ll)
 
     def __call__(self,data,args):
+        t=time()
         data1 = data.copy()
         data2 = data.copy()
         try: #two populations
             data1[['N','af','Z','score']] = data[['N1','af1','Z1','score1']]
             data2[['N','af','Z','score']] = data[['N2','af2','Z2','score2']]
+            W = 1.0/np.maximum(data['scoreX'],np.ones(data['scoreX'].shape))
         except KeyError: #one population
             data1[['N','Z']] = data[['N1','Z1']]
             data2[['N','Z']] = data[['N2','Z2']]
-        h1 = fit_h1(data1,args,jk=False,M=self.M)
-        h2 = fit_h1(data2,args,jk=False,M=self.M)
+            W = 1.0/np.maximum(data['score'],np.ones(data['score'].shape))
+        h1 = fit_h(data1,args,jk=False,M=self.M)
+        h2 = fit_h(data2,args,jk=False,M=self.M)
         try:
             _fts = data['score1'] # A bug was causing the next line not to error
             f = lambda x: self.nll(x,h1.h_res.x[1],h2.h_res.x[1],data['Z1'],
                                    data['Z2'],data['score1'],data['score2'],
                                    data['scoreX'],data['N1'],data['N2'],
-                                   self.M)
+                                   self.M,W=W)
         except KeyError:
             f = lambda x: self.nll(x,h1.h_res.x[1],h2.h_res.x[1],data['Z1'],
                                    data['Z2'],data['score'],data['score'],
                                    data['score'],data['N1'],data['N2'],
-                                   data.shape[0])
+                                   self.M,W=W)
         try:
             data1['beta'] = data['beta1']
             data2['beta'] = data['beta2']
         except KeyError:
             pass
         pg = optimize.minimize_scalar(f,bounds=(-1.0,1.0),method='bounded',
-                                     options={'disp':args.v})
+                                     options={'disp':args.v-1,'xatol':args.tol})
         if not pg.success:
             sys.stderr.write(pg.message+'\n')
-            raise ValueError
+            pg.x=np.nan
         if h1.h_res.x[1] == 0 or h2.h_res.x[1] == 0:
-            pg.x = 0.0
+            pg.x = np.nan
         sy1 = self.estimate_sy(data1,h1.h_res.x[1],data1.shape[0])
         sy2 = self.estimate_sy(data2,h2.h_res.x[1],data2.shape[0])
         return h1, sy1, h2, sy2, pg, f
@@ -281,10 +288,10 @@ class fit_pg_pe(fit_pg):
             self.__call__(data,args)
         res = np.array([self.h1_res.h_res.x[1], self.sy1, self.h2_res.h_res.x[1],
                         self.sy2, self.pg_res.x[0], self.pg_res.x[1]])
-        self.null_ll = np.array([self.h1_res.null_ll[0], 0.0, self.h2_res.null_ll[0],
-                                 0.0, self.ll((0.0,res[5])), self.ll((res[4],0.0))])
-        self.alt_ll = np.array([self.h1_res.alt_ll[0], 0.0, self.h2_res.alt_ll[0], 0.0,
-                                self.pg_res.fun, self.pg_res.fun])
+        # self.null_ll = np.array([self.h1_res.null_ll[0], 0.0, self.h2_res.null_ll[0],
+        #                          0.0, self.ll((0.0,res[5])), self.ll((res[4],0.0))])
+        # self.alt_ll = np.array([self.h1_res.alt_ll[0], 0.0, self.h2_res.alt_ll[0], 0.0,
+        #                         self.pg_res.fun, self.pg_res.fun])
         self.res = pd.DataFrame(np.vstack((res,np.tile(np.nan,len(res)))).T,
                                 index=['h1','sy1','h2','sy2','pg','pe'],
                                 columns=['Val','SE'])
@@ -297,29 +304,30 @@ class fit_pg_pe(fit_pg):
             self.res['SE'] = self.jackknife.SE
         else:
             self.jackknife = None
-        self.res['LR'] = 2*(self.null_ll-self.alt_ll)
         self.res['Z'] = self.res['Val']/self.res['SE']
-        self.res['P (LRT)'] = 1-stats.chi2.cdf(self.res['LR'],1)
         self.res['P (Z)'] = 1-stats.chi2.cdf(self.res['Z']**2,1)
+        # self.res['LR'] = 2*(self.null_ll-self.alt_ll)
+        # self.res['P (LRT)'] = 1-stats.chi2.cdf(self.res['LR'],1)
 
     def __call__(self,data,args):
         data1 = data.copy()
         data2 = data.copy()
         data1[['N','Z']] = data[['N1','Z1']]
         data2[['N','Z']] = data[['N2','Z2']]
+        W = 1.0/np.maximum(data['score'],np.ones(data['score'].shape))
         try:
             data1['beta'] = data['beta1']
             data2['beta'] = data['beta2']
         except KeyError:
             pass
-        h1 = fit_h1(data1,args,jk=False,M=self.M)
-        h2 = fit_h1(data2,args,jk=False,M=self.M)
+        h1 = fit_h(data1,args,jk=False,M=self.M)
+        h2 = fit_h(data2,args,jk=False,M=self.M)
         f = lambda x: self.nll(x,h1.h_res.x[1],h2.h_res.x[1],data['Z1'],data['Z2'],
                                data['score'],data['N1'],data['N2'],data['Ns'],
-                               self.M)
+                               self.M,W=W)
         x0 = [0.01, 0.01] #self.initial_guess(f)
         pg = optimize.minimize(f,x0,bounds=((-1.0,1.0),(-1.0,1.0)),
-                                     options={'disp':args.v})
+                                     options={'disp':args.v-1})
         if not pg.success:
             sys.stderr.write(pg.message+'\n')
             raise ValueError

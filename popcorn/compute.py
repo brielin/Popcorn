@@ -3,6 +3,7 @@ from __future__ import print_function
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
+import bottleneck as bn
 import sys
 from pysnptools.snpreader import Bed
 from pysnptools.standardizer import Unit
@@ -15,7 +16,6 @@ compliment = {'A':'T','T':'A','G':'C','C':'G',
 class covariance_scores_1_pop(object):
     '''
     Class for storing covariance score objects and computing covariance scores
-
     Paramters
     ---------
     bfile: bed file name
@@ -40,7 +40,9 @@ class covariance_scores_1_pop(object):
             raise ValueError('Window type not supported')
         bed_1 = Bed(args.bfile) #
         af1 = self.get_allele_frequency(bed_1,args) #
+        print(len(af1), "SNPs in file 1")
         snps_1 = (af1>args.maf)&(af1<1-args.maf) #
+        print(np.sum(snps_1), "SNPs in file 1 after MAF filter")
         if (args.from_bp is not None) and (args.to_bp is not None):
             k = (bed_1.pos[:,2]>args.from_bp)&(bed_1.pos[:,2]<args.to_bp)
             snps_1 = snps_1&k
@@ -48,6 +50,7 @@ class covariance_scores_1_pop(object):
         if args.extract is not None:
             keep = np.array([l.strip() for l in open(args.extract,'r')])
             snps_to_use = np.intersect1d(snps_to_use,keep)
+            print(len(snps_to_use),"SNPs remaining after extraction")
         bed_1_index = np.sort(bed_1.sid_to_index(snps_to_use)) #
         pos = bed_1.pos[bed_1_index] #
         bim_1=pd.read_table(bed_1.filename+'.bim',header=None,
@@ -100,18 +103,19 @@ class covariance_scores_1_pop(object):
             k0 = np.where((bed.pos[:,2]>=args.from_bp))[0][0]
             k1 = np.where((bed.pos[:,2]<=args.to_bp))[0][-1]
             X = bed[:,k0:k1].read().val
-            af[k0:k1] = X.mean(0)/2.0
+            af[k0:k1] = bn.nanmean(X,0)/2.0
             var[k0:k1] = self._fast_var(X,2*af[k0:k1])
         else:
             for i in xrange(int(np.ceil(bed.sid_count/s))):
                 X = bed[:,i*s:(i+1)*s].read().val
-                af[i*s:(i+1)*s] = X.mean(0)/2.0
+                af[i*s:(i+1)*s] = bn.nanmean(X,0)/2.0
                 var[i*s:(i+1)*s] = self._fast_var(X,2*af[i*s:(i+1)*s])
         af[var==0]=0
         return af
 
+    # replace missing genotypes with mean
     def _norm_data(self,X):
-        m = np.nanmean(X,0)
+        m = bn.nanmean(X,0)
         inds = np.where(np.isnan(X))
         X[inds]=np.take(m,inds[1])
         np.subtract(X,m,out=X)

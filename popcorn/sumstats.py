@@ -2,10 +2,10 @@ from __future__ import division
 from __future__ import print_function
 import numpy as np
 import pandas as pd
-import time
 import sys
 import argparse
 import warnings
+from time import time
 from IPython import embed
 
 compliment = {'A':'T','T':'A','G':'C','C':'G',
@@ -16,7 +16,7 @@ class sumstats_1_trait(object):
     Class for Sumstats objects.
     '''
     def __init__(self,scores,args):
-        data1, id_type = self.parse_input(args.sfile,args.old_format)
+        data1, id_type = self.parse_input(args.sfile)
         # cast to array for compatabiity with pandas 0.15.2
         data1 = data1.loc[~np.array(data1.index.duplicated(),dtype=bool)]
         print(len(data1),"SNPs detected in input.")
@@ -45,65 +45,64 @@ class sumstats_1_trait(object):
               "compliment SNPs.")
         self.data = data.loc[align1!=0]
 
-    def parse_input(self,sfile,old_format):
-        if not old_format:
-            DF = pd.read_table(sfile,sep='\s*',engine='python')
-            data = pd.DataFrame()
+    def parse_input(self,sfile):
+        DF = pd.read_table(sfile)
+        data = pd.DataFrame()
+        try:
+            data['id'] = DF['rsid']
+            id_type = 'rsid'
+        except KeyError:
             try:
-                data['id'] = DF['rsid']
+                data['id'] = DF['SNP']
                 id_type = 'rsid'
             except KeyError:
                 try:
-                    data['id'] = DF['SNP']
-                    id_type = 'rsid'
+                    data['id'] = 'chr'+DF['chr'].map(str)+':'+DF['pos'].map(str)
+                    id_type = 'pos'
                 except KeyError:
-                    try:
-                        data['id'] = 'chr'+DF['chr'].map(str)+':'+DF['pos'].map(str)
-                        id_type = 'pos'
-                    except KeyError:
-                        raise ValueError('Must provide either "rsid", "SNP"'
+                    raise ValueError('Must provide either "rsid", "SNP"'
                                              ' or "chr" and "pos"')
+        try:
+            data['a1'] = DF['a1']
+            data['a2'] = DF['a2']
+        except KeyError:
             try:
-                data['a1'] = DF['a1']
-                data['a2'] = DF['a2']
+                data['a1'] = DF['A1']
+                data['a2'] = DF['A2']
             except KeyError:
-                try:
-                    data['a1'] = DF['A1']
-                    data['a2'] = DF['A2']
-                except KeyError:
-                    raise ValueError('Must provide allele names "a1" and "a2"'
-                                     ' or "A1" and "A2"')
-            try:
-                data['af'] = DF['af']
-            except KeyError:
-                data['af'] = np.nan
-                warnings.warn('Warning: Study AF not provided. Defulating to'
-                              'ignoring variants where minor allele is the '
-                              'compliment of the major allele.')
-            try:
-                data['N'] = DF['N']
-            except KeyError:
-                raise ValueError('Must provide number of samples "N"')
-            try:
-                data['beta'] = DF['beta']
-                data['SE'] = DF['SE']
-                data['Z'] = data['beta']/data['SE']
-            except KeyError:
-                try:
-                    data['Z'] = DF['Z']
-                except KeyError:
-                    raise ValueError('Must provide either signed Z-scores "Z" or'
-                                     '"beta" and "SE"')
-            data.index = data['id']
-        else:
-            data = pd.read_table(sfile,sep='\t',header=None,
-                                 names=['chr','id','pos','af','a1','a2',
-                                          'N1','N2','beta','SE','pv'])
-            data['N'] = data['N1']+data['N2']
+                raise ValueError('Must provide allele names "a1" and "a2"'
+                                 ' or "A1" and "A2"')
+        try:
+            data['af'] = DF['af']
+        except KeyError:
+            data['af'] = np.nan
+            print('Note: Study AF not provided. Defulating to'
+                          ' ignoring variants where minor allele is the'
+                          ' compliment of the major allele.')
+        try:
+            data['N'] = DF['N']
+        except KeyError:
+            raise ValueError('Must provide number of samples "N"')
+        try:
+            data['beta'] = DF['beta']
+            data['SE'] = DF['SE']
             data['Z'] = data['beta']/data['SE']
-            data = data[['id','af','a1','a2','N','beta','SE','Z']]
-            id_type='rsid'
-            data.index = data['id']
+        except KeyError:
+            try:
+                data['Z'] = DF['Z']
+            except KeyError:
+                raise ValueError('Must provide either signed Z-scores "Z" or'
+                                 '"beta" and "SE"')
+        data.index = data['id']
+        # else:
+        #     data = pd.read_table(sfile,sep='\t',header=None,
+        #                          names=['chr','id','pos','af','a1','a2',
+        #                                   'N1','N2','beta','SE','pv'])
+        #     data['N'] = data['N1']+data['N2']
+        #     data['Z'] = data['beta']/data['SE']
+        #     data = data[['id','af','a1','a2','N','beta','SE','Z']]
+        #     id_type='rsid'
+        #     data.index = data['id']
         return data, id_type
 
     # Similar enough to the one in compute.py to be rolled into one function
@@ -147,10 +146,11 @@ class sumstats_1_trait(object):
 
 class sumstats_2_trait(sumstats_1_trait):
     def __init__(self,scores,args):
-        data1, id_type1 = self.parse_input(args.sfile1,args.old_format)
-        data2, id_type2 = self.parse_input(args.sfile2,args.old_format)
-        data1 = data1.loc[~np.array(data1.index.duplicated(),dtype=bool)]
-        data2 = data2.loc[~np.array(data2.index.duplicated(),dtype=bool)]
+        t=time()
+        data1, id_type1 = self.parse_input(args.sfile1)
+        data2, id_type2 = self.parse_input(args.sfile2)
+        data1 = data1.loc[~data1.index.duplicated(keep='first')]
+        data2 = data2.loc[~data2.index.duplicated(keep='first')]
         try:
             assert id_type1==id_type2
         except AssertionError:
@@ -159,34 +159,43 @@ class sumstats_2_trait(sumstats_1_trait):
         print(len(data1),len(data2),"SNPs detected in input.")
         self.id_type = id_type1
         if self.id_type == 'pos':
-            # Need to double check that this changes the index since id=index
             scores['id']='chr'+scores['chr'].map(str)+':'+scores['pos'].map(str)
+            scores.index = scores['id']
         comm_snps = scores.index.intersection(data1.index).\
             intersection(data2.index)
         print(len(comm_snps),"SNPs remaining after merging with score file.")
         data1 = data1.loc[comm_snps]
         data2 = data2.loc[comm_snps]
         scores = scores.loc[comm_snps]
-        try:
-            data1['a1'] = map(lambda x: x.upper(), data1['a1'])
-            data1['a2'] = map(lambda x: x.upper(), data1['a2'])
-            data2['a1'] = map(lambda x: x.upper(), data2['a1'])
-            data2['a2'] = map(lambda x: x.upper(), data2['a2'])
-        except AttributeError:
-            pass
+        if not data1['a1'][0].isupper():
+            try:
+                data1['a1'] = map(lambda x: x.upper(), data1['a1'])
+                data1['a2'] = map(lambda x: x.upper(), data1['a2'])
+                data2['a1'] = map(lambda x: x.upper(), data2['a1'])
+                data2['a2'] = map(lambda x: x.upper(), data2['a2'])
+            except AttributeError:
+                pass
         try:
             af1, af2 = scores['af'], scores['af']
             self.two_pops = False
         except KeyError:
             af1, af2 = scores['af1'], scores['af2']
             self.two_pops = True
+        keep1 = (af1>args.maf)&(af1<1-args.maf)
+        keep2 = (af2>args.maf)&(af2<1-args.maf)
+        keep = keep1&keep2
+        data1 = data1.loc[keep]
+        data2 = data2.loc[keep]
+        scores = scores.loc[keep]
+        af1 = af1.loc[keep]
+        af2 = af2.loc[keep]
+        comm_snps = data1.index
         if not args.no_align:
             align1=self.align_to_scores(data1,scores['a1'],scores['a2'],af1)
             align2=self.align_to_scores(data2,scores['a1'],scores['a2'],af2)
         else:
             align1=np.ones((len(comm_snps)))
             align2=np.ones((len(comm_snps)))
-
         # data = pd.DataFrame()
         # try:
         #     data = scores[['chr','pos','id','a1','a2','score']]
@@ -219,8 +228,8 @@ class sumstats_2_trait(sumstats_1_trait):
                     data['Ns'] = Ns
             except TypeError:
                 if self.two_pops == False:
-                    warnings.warn('Sample overlap not specified,'
-                                 ' assuming 0.')
+                    print('Note: Sample overlap not specified,'
+                          ' assuming 0.')
                 data['Ns'] = 0
         self.overlap = np.all(data['Ns'])
         if self.two_pops and self.overlap:
@@ -228,5 +237,4 @@ class sumstats_2_trait(sumstats_1_trait):
                              ' specified.')
         print(len(data),"SNPs remaining after filtering on AF and self-"
               "compliment SNPs.")
-
         self.data = data.loc[(align1!=0)&(align2!=0)]

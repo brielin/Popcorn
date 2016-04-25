@@ -1,6 +1,5 @@
 from __future__ import division
 from __future__ import print_function
-#from my_tool import sumstats
 import numpy as np
 import pandas as pd
 import time
@@ -18,24 +17,19 @@ class jackknife(object):
         self.blocks, self.bs = self.get_blocks(N,args)
         self.nb = len(self.blocks)
         print('Performing jackknife estimation of the standard'
-              'error using',self.nb,'blocks of size',self.bs,'.')
+              ' error using',self.nb,'blocks of size',self.bs,'.')
         self.psuedovalues, self.delete_values = self.jackknife(f,x,r)
-        self.cov = np.cov(self.psuedovalues,rowvar=False)
-        self.SE = np.sqrt(np.diag(self.cov)/self.nb)
+        maskedps=np.ma.array(self.psuedovalues,mask=np.isnan(self.psuedovalues))
+        nb = self.nb - np.isnan(self.psuedovalues).sum(0)
+        self.cov = np.ma.cov(maskedps,rowvar=False)
+        self.SE = np.sqrt(np.diag(self.cov)/nb)
 
     def get_blocks(self,N,args):
-        if N < 1000:
-            bs = N/10
-            nblocks = 10
-        elif N < 10000:
-            bs = 250
-            nblocks = N/bs
-        elif N < 100000:
-            bs = 500
-            nblocks = N/bs
-        else:
-            nblocks=200
-            bs = int(N/nblocks)
+        bs0=200
+        nb0 = 200
+        minb = 10
+        nblocks = np.min((np.max((minb,N/bs0)),nb0))
+        bs = int(N/nblocks)
         A = np.floor(np.linspace(0,N,nblocks+1)).astype(int)
         return zip(A[:-1],A[1:]), bs
 
