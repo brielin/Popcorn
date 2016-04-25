@@ -56,22 +56,24 @@ def main(args):
                                        dest='mode')
     # Arguments exclusive to compute mode
     parser_compute = subparsers.add_parser('compute')
-    parser_compute.add_argument('--bfile',help='Speficy binary plink filename.',
+    parser_compute.add_argument('--bfile',help='Specify binary plink filename,'
+                                ' without extension',
                                 default=None)
     parser_compute.add_argument('--bfile1',help='Specify binary plink filename'
-                                'for population 1',default=None)
+                                'for population 1, without extension',default=None)
     parser_compute.add_argument('--bfile2',help='Specify binary plink filename'
-                                'for population 2',default=None)
-    parser_compute.add_argument('--window_size',help='Specify window size',
+                                'for population 2, without extension',default=None)
+    parser_compute.add_argument('--window_size',help='Specify window size,'
+                                'in units of WINDOW_TYPE',
                                 default=1000,type=int)
     parser_compute.add_argument('--window_type',help='Specify window type'
                                 ' (SNP,KBP)',default='KBP')
     parser_compute.add_argument('--SNPs_to_read',help='Specify number of SNPs'
-                                'to read at a time. For debugging only.',
+                                ' to read at a time. Mainly for debugging.',
                                 default=1000,type=int)
     parser_compute.add_argument('--SNPs_to_store',help='Specify size of'
-                                'in memory SNP array. May need to increase'
-                                'for very dense panels or wide window sizes.',
+                                ' in memory SNP array. May need to increase'
+                                ' for very dense panels or wide window sizes.',
                                 type=int,default=10000)
     parser_compute.add_argument('--extract',default=None)
     # parser_compute.add_argument('--afile',help='Specify ancestry file for'
