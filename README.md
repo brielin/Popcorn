@@ -18,6 +18,18 @@ python -m popcorn -h
 python -m popcorn compute -h  
 python -m popcorn fit -h  
 
+Dependences:  
+Popcorn was developed using the following external python libraries.
+If you experience problems running Popcorn, try updating your libraries,
+epecially less stable ones like Pandas, Pysnptools and Statsmodels,
+to the versions listed here.  
+numpy 1.9.2
+scipy 0.16.1
+statsmodels 0.6.1
+pandas 0.17.1
+pysnptools 0.3.9
+bottleneck 1.0.0
+
 
 Do not hesitate to contact me with questions as this is early stage software!
 
