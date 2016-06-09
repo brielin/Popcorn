@@ -59,8 +59,8 @@ class covariance_scores_1_pop(object):
         # if args.afile is not None:
         #     a1 =  pd.read_table(args.afile,header=None,sep='\s*',
         #                         names=['id1','id2','theta'])
-        else:
-            a1 = None
+        # else:
+        #     a1 = None
         self.af = af
         self.M = len(bed_1_index) #
         self.windows = self.get_windows(pos,args) #
@@ -233,8 +233,8 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
         # if args.afile2 is not None:
         #     a2 =  pd.read_table(args.afile,header=None,sep='\s*',
         #                         names=['id1','id2','theta'])
-        else:
-            a2 = None
+        # else:
+        #     a2 = None
         self.af1 = af1 #
         self.af2 = af2
         self.M = len(bed_1_index) #
