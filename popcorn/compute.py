@@ -56,9 +56,9 @@ class covariance_scores_1_pop(object):
         bim_1=pd.read_table(bed_1.filename+'.bim',header=None,
                             names=['chm','id','pos_mb','pos_bp','a1','a2'])
         af = af1[bed_1_index] #
-        if args.afile is not None:
-            a1 =  pd.read_table(args.afile,header=None,sep='\s*',
-                                names=['id1','id2','theta'])
+        # if args.afile is not None:
+        #     a1 =  pd.read_table(args.afile,header=None,sep='\s*',
+        #                         names=['id1','id2','theta'])
         else:
             a1 = None
         self.af = af
@@ -225,14 +225,14 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
                             names=['chm','id','pos_mb','pos_bp','a1','a2'])
         af1 = af1[bed_1_index] #
         af2 = af2[bed_2_index]
-        if args.afile1 is not None:
-            a1 =  pd.read_table(args.afile,header=None,sep='\s*',
-                                names=['id1','id2','theta'])
-        else:
-            a1 = None
-        if args.afile2 is not None:
-            a2 =  pd.read_table(args.afile,header=None,sep='\s*',
-                                names=['id1','id2','theta'])
+        # if args.afile1 is not None:
+        #     a1 =  pd.read_table(args.afile,header=None,sep='\s*',
+        #                         names=['id1','id2','theta'])
+        # else:
+        #     a1 = None
+        # if args.afile2 is not None:
+        #     a2 =  pd.read_table(args.afile,header=None,sep='\s*',
+        #                         names=['id1','id2','theta'])
         else:
             a2 = None
         self.af1 = af1 #
