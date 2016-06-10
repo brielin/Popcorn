@@ -20,7 +20,7 @@ class covariance_scores_1_pop(object):
     ---------
     bfile: bed file name
     block_size: block size for computing scores
-    block_type: type of block - SNP or BP
+    block_type: type of block - SNP or KBP
 
     Attributes
     ----------
@@ -36,7 +36,7 @@ class covariance_scores_1_pop(object):
     compute: compute the covariance scores
     '''
     def __init__(self,args):
-        if args.window_type not in ['BP','SNP']:
+        if args.window_type not in ['KBP','SNP']:
             raise ValueError('Window type not supported')
         bed_1 = Bed(args.bfile) #
         af1 = self.get_allele_frequency(bed_1,args) #
@@ -60,7 +60,7 @@ class covariance_scores_1_pop(object):
         #     a1 =  pd.read_table(args.afile,header=None,sep='\s*',
         #                         names=['id1','id2','theta'])
         # else:
-        #     a1 = None
+        a1 = None
         self.af = af
         self.M = len(bed_1_index) #
         self.windows = self.get_windows(pos,args) #
@@ -72,7 +72,7 @@ class covariance_scores_1_pop(object):
         self.scores = self.compute(bed_1,bed_1_index,af,a1,args) #
 
     def get_windows(self,pos,args):
-        if args.window_type == 'BP':
+        if args.window_type == 'KBP':
             coords = pos[:,2]
             ws = 1000*args.window_size
         elif args.window_type == 'SNP':
@@ -189,7 +189,7 @@ class covariance_scores_1_pop(object):
 
 class covariance_scores_2_pop(covariance_scores_1_pop):
     def __init__(self,args):
-        if args.window_type not in ['BP','SNP']:
+        if args.window_type not in ['KBP','SNP']:
             raise ValueError('Window type not supported')
         bed_1 = Bed(args.bfile1) #
         bed_2 = Bed(args.bfile2)
@@ -229,12 +229,12 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
         #     a1 =  pd.read_table(args.afile,header=None,sep='\s*',
         #                         names=['id1','id2','theta'])
         # else:
-        #     a1 = None
+        a1 = None
         # if args.afile2 is not None:
         #     a2 =  pd.read_table(args.afile,header=None,sep='\s*',
         #                         names=['id1','id2','theta'])
         # else:
-        #     a2 = None
+        a2 = None
         self.af1 = af1 #
         self.af2 = af2
         self.M = len(bed_1_index) #
