@@ -270,10 +270,31 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
                             names=['chm','id','pos_mb','pos_bp','a1','a2'])
         bim_2=bim_2.iloc[bed_2_index]
         bim_2.index = xrange(len(bed_2_index))
-        bim_1['a1c'] = [compliment[a] for a in bim_1['a1']]
-        bim_1['a2c'] = [compliment[a] for a in bim_1['a2']]
-        bim_2['a1c'] = [compliment[a] for a in bim_2['a1']]
-        bim_2['a2c'] = [compliment[a] for a in bim_2['a2']]
+        a11c = []
+        a12c = []
+        a21c = []
+        a22c = []
+        for a11,a12,a21,a22 in \
+                pd.concat([bim_1[['a1','a2']],bim_2[['a1','a2']]],axis=1).values:
+            try:
+                a11c.append(compliment[a11])
+                a12c.append(compliment[a12])
+                a21c.append(compliment[a21])
+                a22c.append(compliment[a22])
+            except KeyError:
+                a11c.append('N')
+                a12c.append('N')
+                a21c.append('N')
+                a22c.append('N')
+        non_snp = (np.array(a11c) == 'N')
+        bim_1['a1c'] = a11c
+        bim_1['a2c'] = a12c
+        bim_2['a1c'] = a21c
+        bim_2['a2c'] = a22c
+        # bim_1['a1c'] = [compliment[a] for a in bim_1['a1']]
+        # bim_1['a2c'] = [compliment[a] for a in bim_1['a2']]
+        # bim_2['a1c'] = [compliment[a] for a in bim_2['a1']]
+        # bim_2['a2c'] = [compliment[a] for a in bim_2['a2']]
 
         self_compliment=(bim_1['a2']==bim_1['a1c'])
         s = (bim_1['a1']==bim_2['a1'])&\
@@ -303,7 +324,7 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
             (bim_1['a2']==bim_2['a1c'])&\
             self_compliment & af_f
         alignment = np.array(s+-1*f+c+-1*fac+saf+-1*faf+caf+-1*facaf)
-        keep = (alignment!=0)
+        keep = (alignment!=0)&(~non_snp)
         return alignment[keep], bed_1_index[keep], bed_2_index[keep]
 
     def compute2(self,bed_1,bed_1_index,bed_2,bed_2_index,alignment,a1,a2,args):

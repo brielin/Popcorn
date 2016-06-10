@@ -29,7 +29,7 @@ class Logger(object):
         #you might want to specify some extra behavior here.
         pass
 
-__version__='0.9.1'
+__version__='0.9.2'
 header='Popcorn version '+__version__+'\n'\
 '(C) 2015-2016 Brielin C Brown\n'\
 'University of California, Berkeley\n'\
