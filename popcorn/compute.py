@@ -128,7 +128,7 @@ class covariance_scores_1_pop(object):
 
     def compute(self,bed_1,bed_1_index,af,a1,args):
         N = bed_1.iid_count
-        if args.per_allele:
+        if args.gen_effect:
             v1m = np.mean(2*af*(1-af))
             def func(a,i,j):
                 af1 = af[i:j]
@@ -328,7 +328,7 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
         return alignment[keep], bed_1_index[keep], bed_2_index[keep]
 
     def compute2(self,bed_1,bed_1_index,bed_2,bed_2_index,alignment,a1,a2,args):
-        if args.per_allele:
+        if args.gen_effect:
             v1m = np.mean(2*self.af1*(1-self.af1))
             v2m = np.mean(2*self.af2*(1-self.af2))
             def func(a,b,i,j):

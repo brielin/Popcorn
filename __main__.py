@@ -43,8 +43,10 @@ def main(args):
     parser.add_argument('--out',help='Specify output file',default='popcorn.out')
     parser.add_argument('--maf',help='Specify MAF cutoff',type=float,
                         default=0.05)
-    parser.add_argument('--per_allele',help='Use the per-allele effects model'
-                        ' rather than the standardized effects model.',
+    parser.add_argument('--gen_effect',help='Use the per-allele effects model'
+                        ' rather than the standardized effects model to '
+                        ' to compute genetic effect correlation instead of'
+                        ' genetic impact correlation',
                         default=False,action='store_true')
     parser.add_argument('--from_bp',default=None,type=int)
     parser.add_argument('--to_bp',default=None,type=int)
