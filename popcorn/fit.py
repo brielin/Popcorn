@@ -82,7 +82,7 @@ class fit_h(object):
         res = np.array([self.h_res.x[1], self.sy])
         #res = np.array([self.h_res.x, self.sy])
         self.res = pd.DataFrame(np.vstack((res,np.tile(np.nan,len(res)))).T,
-                                index=['h','sy'],columns=['Val','SE'])
+                                index=['h^2','sy'],columns=['Val (obs)','SE'])
         def close_call(x):
             res = self.__call__(x,args)
             return res[0].x[1], res[1]
@@ -94,8 +94,9 @@ class fit_h(object):
             self.jackknife = None
         if (args.K1 is not None)&(args.P1 is not None):
             self.convert_to_liability(args.K1,args.P1)
-        self.res['Z'] = self.res['Val']/self.res['SE']
-        self.res['P (Z)'] = 1-stats.chi2.cdf(self.res['Z']**2,1)
+        self.res['Z'] = self.res['Val (obs)']/self.res['SE']
+        self.res['P(h^2 > 0)'] = 1-stats.chi2.cdf(self.res['Z']**2,1)
+        self.res = pd.DataFrame(self.res.loc['h^2'])
         # self.res['LR'] = 2*(self.null_ll-self.alt_ll)
         # self.res['P (LRT)'] = 1-stats.chi2.cdf(self.res['LR'],1)
 
@@ -110,7 +111,7 @@ class fit_h(object):
             h.x = [1.0,h.x]
         else:
             f=lambda x: self.nll(x,data['Z'],data['N'],self.M,data['score'],W=W)
-            for x1 in np.arange(0.01,1,0.05):
+            for x1 in np.arange(0.0,1,0.05):
                 x0=[1.0,x1]
                 h = optimize.minimize(f,x0,bounds=((None,None),(0.0,1.0)),
                                       options={'disp':args.v-1})
@@ -160,11 +161,11 @@ class fit_h(object):
         self.res.to_csv(outfile,sep='\t',na_rep='NaN')
 
     def convert_to_liability(self,K,P):
-        self.res['Lia']=np.nan
-        ho=self.res['Val']['h']
+        self.res['Val (Lia)']=np.nan
+        ho=self.res['Val (obs)']['h']
         tau=stats.norm.ppf(1-K)
         hl=ho*((K*(1-K))**2)/(stats.norm.pdf(tau)**2*P*(1-P))
-        self.res['Lia']['h']=hl
+        self.res['Val (Lia)']['h']=hl
         return hl
 
 class fit_pg(fit_h):
@@ -185,9 +186,9 @@ class fit_pg(fit_h):
         #                         self.h2_res.alt_ll[0], 0.0,
         #                         self.pg_res.fun,self.pg_res.fun])
         self.res = pd.DataFrame(np.vstack((res,np.tile(np.nan,len(res)))).T,
-                                index=['h1','sy1','h2','sy2','hg','pg'],
-                                columns=['Val','SE'])
-        if args.v > 0: print("Initial estimate:",self.res)
+                                index=['h1^2','sy1','h2^2','sy2','hgi','pg'],
+                                columns=['Val (obs)','SE'])
+        if args.v > 0: print("Initial estimate:\n",self.res.loc[['h1^2','h2^2','pg']])
         def close_call(x):
             res = self.__call__(x,args)
             hg = res[4].x*np.sqrt(res[0].h_res.x[1]*res[2].h_res.x[1])
@@ -201,11 +202,15 @@ class fit_pg(fit_h):
         if (args.K1 is not None)&(args.P1 is not None)\
                 &(args.K2 is not None)&(args.P2 is not None):
             self.convert_to_liability(args.K1,args.P1,args.K2,args.P2)
-        self.res['Z'] = (self.res['Val'])/self.res['SE']
-        self.res['Z']['pg'] = (1.0-self.res['Val']['pg'])/self.res['SE']['pg']
+        self.res['Z'] = (self.res['Val (obs)'])/self.res['SE']
+        self.res['Z']['pg'] = (1.0-self.res['Val (obs)']['pg'])/self.res['SE']['pg']
         self.res['P (Z)'] = 1-stats.chi2.cdf(self.res['Z']**2,1)
-        # self.res['P (LRT)'] = 1-stats.chi2.cdf(self.res['LR'],1)
-        # self.res['LR'] = 2*(self.null_ll-self.alt_ll)
+        if args.gen_effect:
+            self.res.index=['h1^2','sy1','h2^2','sy2','hge','pge']
+            self.res=self.res.loc[['h1^2','h2^2','pge']]
+        else:
+            self.res.index=['h1^2','sy1','h2^2','sy2','hge','pgi']
+            self.res=self.res.loc[['h1^2','h2^2','pgi']]
 
     def __call__(self,data,args):
         t=time()
@@ -266,18 +271,18 @@ class fit_pg(fit_h):
         return -1.0*l
 
     def convert_to_liability(self,K1,P1,K2,P2):
-        self.res['Lia']=np.nan
+        self.res['Val (Lia)']=np.nan
         hl1 = self.h1_res.convert_to_liability(K1,P1)
         hl2 = self.h2_res.convert_to_liability(K2,P2)
-        hgo=self.res['Val']['hg']
+        hgo=self.res['Val (obs)']['hg']
         tau1=stats.norm.ppf(1-K1)
         tau2=stats.norm.ppf(1-K2)
         hgl=hgo*(K1*(1-K1)*K2*(1-K2))/\
             (stats.norm.pdf(tau1)*stats.norm.pdf(tau2)*np.sqrt(P1*(1-P1)*P2*(1-P2)))
-        self.res['Lia']['h1']=hl1
-        self.res['Lia']['h2']=hl2
-        self.res['Lia']['hg']=hgl
-        self.res['Lia']['pg']=hgl/np.sqrt(hl1*hl2)
+        self.res['Val (Lia)']['h1']=hl1
+        self.res['Val (Lia)']['h2']=hl2
+        self.res['Val (Lia)']['hg']=hgl
+        self.res['Val (Lia)']['pg']=hgl/np.sqrt(hl1*hl2)
         return hgl
 
 class fit_pg_pe(fit_pg):
@@ -294,7 +299,7 @@ class fit_pg_pe(fit_pg):
         #                         self.pg_res.fun, self.pg_res.fun])
         self.res = pd.DataFrame(np.vstack((res,np.tile(np.nan,len(res)))).T,
                                 index=['h1','sy1','h2','sy2','pg','pe'],
-                                columns=['Val','SE'])
+                                columns=['Val (obs)','SE'])
         def close_call(x): # GET IT!!??!!
             res = self.__call__(x,args)
             return np.arr(res[0].h_res.x[1], res[1], res[2].h_res.x[1], res[3],
@@ -304,8 +309,14 @@ class fit_pg_pe(fit_pg):
             self.res['SE'] = self.jackknife.SE
         else:
             self.jackknife = None
-        self.res['Z'] = self.res['Val']/self.res['SE']
+        self.res['Z'] = self.res['Val (obs)']/self.res['SE']
         self.res['P (Z)'] = 1-stats.chi2.cdf(self.res['Z']**2,1)
+        if args.gen_effect:
+            self.res.index=['h1^2','sy1','h2^2','sy2','hge','pge']
+            self.res=self.res.loc[['h1^2','h2^2','pge']]
+        else:
+            self.res.index=['h1^2','sy1','h2^2','sy2','hge','pgi']
+            self.res=self.res.loc[['h1^2','h2^2','pgi']]
         # self.res['LR'] = 2*(self.null_ll-self.alt_ll)
         # self.res['P (LRT)'] = 1-stats.chi2.cdf(self.res['LR'],1)
 

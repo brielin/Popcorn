@@ -41,7 +41,7 @@ class jackknife(object):
             # This is not the fastest method for np arrays
             # but it appears to be the fastest if x is a pandas
             # dataframe, plus the syntax is the same
-            sys.stdout.write("Jackknife iter: %d \r" % i)
+            sys.stdout.write("Jackknife iter: {0} \r".format(i+1))
             sys.stdout.flush()
             k = np.ones((x.shape[0]),dtype=np.bool)
             k[slice(*b)]=False
@@ -50,4 +50,5 @@ class jackknife(object):
             ps = self.nb*dv - (self.nb-1)*r
             psa.append(ps)
             dva.append(dv)
+        sys.stdout.write("\n")
         return np.array(psa), np.array(dva)

@@ -29,7 +29,7 @@ class Logger(object):
         #you might want to specify some extra behavior here.
         pass
 
-__version__='0.9.3'
+__version__='0.9.4'
 header='Popcorn version '+__version__+'\n'\
 '(C) 2015-2016 Brielin C Brown\n'\
 'University of California, Berkeley\n'\
@@ -37,33 +37,39 @@ header='Popcorn version '+__version__+'\n'\
 
 def main(args):
     # Arguments common to compute and fit modes
+    parent_parser = argparse.ArgumentParser(add_help=False)
+    parent_parser.add_argument('out',help='Specify output file.',
+                               default='popcorn.out')
+    parent_parser.add_argument('-v',help='Specify output verbosity.',type=int,
+                               choices=[0,1,2,3],default=0)
+    parent_parser.add_argument('--maf',help='Specify MAF cutoff. We suggest'
+                               ' at least 0.01.',type=float, default=0.05)
+    parent_parser.add_argument('--gen_effect',help='Compute genetic effect'
+                               ' correlation instead of genetic impact'
+                               ' correlation. This must be specified both'
+                               ' when computing scores and fitting the model.',
+                               default=False,action='store_true')
+    parent_parser.add_argument('--from_bp',default=None,type=int,help='Specify'
+                               ' base position to start analysis.')
+    parent_parser.add_argument('--to_bp',default=None,type=int,help='Specify'
+                               ' base position to finish analysus.')
+    parent_parser.add_argument('--no_align',default=False,action='store_true',
+                               help=argparse.SUPPRESS)
+
     parser = argparse.ArgumentParser()
-    parser.add_argument('-v',help='Specify output verbosity',type=int,
-                        choices=[0,1,2,3])
-    parser.add_argument('--out',help='Specify output file',default='popcorn.out')
-    parser.add_argument('--maf',help='Specify MAF cutoff',type=float,
-                        default=0.05)
-    parser.add_argument('--gen_effect',help='Use the per-allele effects model'
-                        ' rather than the standardized effects model to '
-                        ' to compute genetic effect correlation instead of'
-                        ' genetic impact correlation',
-                        default=False,action='store_true')
-    parser.add_argument('--from_bp',default=None,type=int)
-    parser.add_argument('--to_bp',default=None,type=int)
-    parser.add_argument('--no_align',default=False,action='store_true')
-    subparsers = parser.add_subparsers(help='Program mode: "compute" for '
-                                       'computing covariance scores, "fit" for '
-                                       'fitting summary statistics with already'
-                                       ' computed covariance scores.',
+    subparsers = parser.add_subparsers(help='Program mode: "compute" for'
+                                       ' computing covariance scores, "fit" for'
+                                       ' fitting summary statistics with pre-'
+                                       'computed covariance scores.',
                                        dest='mode')
     # Arguments exclusive to compute mode
-    parser_compute = subparsers.add_parser('compute')
+    parser_compute = subparsers.add_parser('compute',parents=[parent_parser])
     parser_compute.add_argument('--bfile',help='Specify binary plink filename,'
                                 ' without extension',
                                 default=None)
-    parser_compute.add_argument('--bfile1',help='Specify binary plink filename'
+    parser_compute.add_argument('--bfile1',help='Specify binary plink filename '
                                 'for population 1, without extension',default=None)
-    parser_compute.add_argument('--bfile2',help='Specify binary plink filename'
+    parser_compute.add_argument('--bfile2',help='Specify binary plink filename '
                                 'for population 2, without extension',default=None)
     parser_compute.add_argument('--window_size',help='Specify window size,'
                                 'in units of WINDOW_TYPE',
@@ -77,7 +83,9 @@ def main(args):
                                 ' in memory SNP array. May need to increase'
                                 ' for very dense panels or wide window sizes.',
                                 type=int,default=10000)
-    parser_compute.add_argument('--extract',default=None)
+    parser_compute.add_argument('--extract',default=None,help='Specify a text'
+                                ' file containing a whitespace separated list'
+                                ' of SNP IDs for use in the computation.')
     # parser_compute.add_argument('--afile',help='Specify ancestry file for'
     #                             'conditioning in admixed populations.',
     #                             default=None)
@@ -88,8 +96,7 @@ def main(args):
     #                             'conditioning in admixed populations.',
     #                             default=None)
     # Arguments exclusive to fit mode
-    parser_fit = subparsers.add_parser('fit')
-    # parser_fit.add_argument('--old_format',default=False, action='store_true')
+    parser_fit = subparsers.add_parser('fit',parents=[parent_parser])
     parser_fit.add_argument('--sfile',help='Specify tab delimited'
                             ' summary statistics file')
     parser_fit.add_argument('--sfile1',help='Specify tab delimited'
@@ -101,12 +108,7 @@ def main(args):
                             ' of overlapping samples or 2) proportion of'
                             ' overlapping samples or a 3) text file containing'
                             ' the number of overlapping samples per SNP ID.')
-    parser_fit.add_argument('--regions',help='A text file with three columns'
-                            ' specifying chromosome, starting base and ending'
-                            ' base for a list of regions to analyse separately.')
-    # parser_fit.add_argument('--niter',help='Specify the max iterations for MLE.'
-    #                         ' Unless you have convergence issues use default',
-    #                         default=1000,type=int)
+    parser_fit.add_argument('--regions',help=argparse.SUPPRESS)
     parser_fit.add_argument('--tol',help='Specify the convergence tolerance'
                             ' for MLE. Unless you have convergence issues use'
                             ' default',default=.00001)
@@ -121,9 +123,7 @@ def main(args):
                             ' population prevelance of binary phenotype 2.')
     parser_fit.add_argument('--P2',default=None,type=float,help='Specify'
                             ' study prevelance of binary phenotype 2.')
-    parser_fit.add_argument('--M',default=None,type=int,help='Use first M'
-                            ' entries to estimate paramters.'
-                            ' Use only for testing.')
+    parser_fit.add_argument('--M',default=None,type=int,help=argparse.SUPPRESS)
     parser_fit.add_argument('--no_intercept',default=False,action='store_true',
                             help='Fixes intercept of heritability to be 1.0.')
     args = parser.parse_args()
@@ -165,7 +165,7 @@ def main(args):
                 if args.regions:
                     res = fit.fit_by_region(data.data,args,t='h1')
                 else:
-                    res = fit.fit_h1(data.data,args,M=M)
+                    res = fit.fit_h(data.data,args,M=M)
             elif (args.sfile is not None) \
                     ^ (args.sfile1 is not None) \
                     and (args.sfile2 is not None):
