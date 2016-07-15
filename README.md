@@ -21,6 +21,16 @@ For a full list of arguments and documentations type:
 python -m popcorn compute -h  
 python -m popcorn fit -h  
 
+Output:  
+Popcorn reports the common-SNP observed scale (Val (Obs)) heritability (h^2) for both populations (h1^2 and h2^2),
+the genetic effect or genetic impact correlation (pge or pgi), and the standard error of
+these estimates (SE). If a transormation to the underlying liability scale is requested,
+it also outputs the value on the liability scale (Val (Lia)). Popcorn also computes Z-scores
+and p-values corresponding to these Z-scores. In the case of heritability, the p-value
+reported is for a test that the heritability is *greater than 0*: P(h^2 > 0.0). In the
+case of genetic correlation the p-value reported is for a test that the genetic correlation
+is *less than 1.0*: P(pg < 1.0).
+
 Dependences:  
 Popcorn was developed using the following external python libraries.
 If you experience problems running Popcorn, try updating your libraries,
