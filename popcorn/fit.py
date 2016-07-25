@@ -7,7 +7,7 @@ import argparse
 import logging
 import traceback
 from scipy import optimize, stats
-from IPython import embed
+#from IPython import embed
 from time import time
 from . import jackknife
 

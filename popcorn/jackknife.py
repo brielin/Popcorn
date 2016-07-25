@@ -8,7 +8,7 @@ import argparse
 import logging
 import traceback
 from scipy import optimize
-from IPython import embed
+#from IPython import embed
 from time import time
 
 class jackknife(object):

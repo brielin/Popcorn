@@ -7,7 +7,7 @@ import bottleneck as bn
 import sys
 from pysnptools.snpreader import Bed
 from pysnptools.standardizer import Unit
-from IPython import embed
+#from IPython import embed
 from time import time
 
 compliment = {'A':'T','T':'A','G':'C','C':'G',
