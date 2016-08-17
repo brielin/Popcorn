@@ -7,7 +7,7 @@ import argparse
 import logging
 import traceback
 from scipy import optimize, stats
-#from IPython import embed
+from IPython import embed
 from time import time
 from . import jackknife
 
@@ -162,10 +162,10 @@ class fit_h(object):
 
     def convert_to_liability(self,K,P):
         self.res['Val (Lia)']=np.nan
-        ho=self.res['Val (obs)']['h']
+        ho=self.res['Val (obs)']['h^2']
         tau=stats.norm.ppf(1-K)
         hl=ho*((K*(1-K))**2)/(stats.norm.pdf(tau)**2*P*(1-P))
-        self.res['Val (Lia)']['h']=hl
+        self.res['Val (Lia)']['h^2']=hl
         return hl
 
 class fit_pg(fit_h):
@@ -186,7 +186,7 @@ class fit_pg(fit_h):
         #                         self.h2_res.alt_ll[0], 0.0,
         #                         self.pg_res.fun,self.pg_res.fun])
         self.res = pd.DataFrame(np.vstack((res,np.tile(np.nan,len(res)))).T,
-                                index=['h1^2','sy1','h2^2','sy2','hgi','pg'],
+                                index=['h1^2','sy1','h2^2','sy2','hg','pg'],
                                 columns=['Val (obs)','SE'])
         if args.v > 0: print("Initial estimate:\n",self.res.loc[['h1^2','h2^2','pg']])
         def close_call(x):
@@ -209,7 +209,7 @@ class fit_pg(fit_h):
             self.res.index=['h1^2','sy1','h2^2','sy2','hge','pge']
             self.res=self.res.loc[['h1^2','h2^2','pge']]
         else:
-            self.res.index=['h1^2','sy1','h2^2','sy2','hge','pgi']
+            self.res.index=['h1^2','sy1','h2^2','sy2','hgi','pgi']
             self.res=self.res.loc[['h1^2','h2^2','pgi']]
 
     def __call__(self,data,args):
@@ -272,15 +272,15 @@ class fit_pg(fit_h):
 
     def convert_to_liability(self,K1,P1,K2,P2):
         self.res['Val (Lia)']=np.nan
-        hl1 = self.h1_res.convert_to_liability(K1,P1)
-        hl2 = self.h2_res.convert_to_liability(K2,P2)
+        hl1 = self.h1_res.res['h^2']['Val (Lia)']
+        hl2 = self.h2_res.res['h^2']['Val (Lia)']
         hgo=self.res['Val (obs)']['hg']
         tau1=stats.norm.ppf(1-K1)
         tau2=stats.norm.ppf(1-K2)
         hgl=hgo*(K1*(1-K1)*K2*(1-K2))/\
             (stats.norm.pdf(tau1)*stats.norm.pdf(tau2)*np.sqrt(P1*(1-P1)*P2*(1-P2)))
-        self.res['Val (Lia)']['h1']=hl1
-        self.res['Val (Lia)']['h2']=hl2
+        self.res['Val (Lia)']['h1^2']=hl1
+        self.res['Val (Lia)']['h2^2']=hl2
         self.res['Val (Lia)']['hg']=hgl
         self.res['Val (Lia)']['pg']=hgl/np.sqrt(hl1*hl2)
         return hgl
