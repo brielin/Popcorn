@@ -14,12 +14,12 @@ called popcorn and run with python -m popcorn {compute,fit} <arguments> outfile.
 below and the argument documentations for details.
 
 Example usage:  
-python -m popcorn compute -v 1 --bfile1 /path/to/EUR_refpanel --bfile2 /path/to/EAS_refpanel scores.txt  
-python -m popcorn fit -v 1 --cfile scores.txt --sfile1 /path/to/EUR_sumstats.txt --sfile2 /path/to/EAS_sumstats.txt EUR_EAS_corr.txt  
+'python -m popcorn compute -v 1 --bfile1 /path/to/EUR_refpanel --bfile2 /path/to/EAS_refpanel scores.txt'  
+'python -m popcorn fit -v 1 --cfile scores.txt --sfile1 /path/to/EUR_sumstats.txt --sfile2 /path/to/EAS_sumstats.txt EUR_EAS_corr.txt'  
 
 For a full list of arguments and documentations type:  
-python -m popcorn compute -h  
-python -m popcorn fit -h  
+'python -m popcorn compute -h'  
+'python -m popcorn fit -h'  
 
 Output:  
 Popcorn reports the common-SNP observed scale (Val (Obs)) heritability (h^2) for both populations (h1^2 and h2^2),
