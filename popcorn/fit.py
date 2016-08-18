@@ -68,7 +68,7 @@ class fit_by_region(object):
 
 
 class fit_h(object):
-    def __init__(self,data,args,jk=True,M=None):
+    def __init__(self,data,args,K=None,P=None,jk=True,M=None):
         if M is None: self.M = data.shape[0]
         else: self.M = M
         self.h_res, self.sy, self.ll = self.__call__(data,args)
@@ -92,8 +92,8 @@ class fit_h(object):
             self.res['SE'] = self.jackknife.SE
         else:
             self.jackknife = None
-        if (args.K1 is not None)&(args.P1 is not None):
-            self.convert_to_liability(args.K1,args.P1)
+        if (K is not None)&(P is not None):
+            self.convert_to_liability(K,P)
         self.res['Z'] = self.res['Val (obs)']/self.res['SE']
         self.res['P(h^2 > 0)'] = 1-stats.chi2.cdf(self.res['Z']**2,1)
         self.res = pd.DataFrame(self.res.loc['h^2'])
@@ -224,8 +224,8 @@ class fit_pg(fit_h):
             data1[['N','Z']] = data[['N1','Z1']]
             data2[['N','Z']] = data[['N2','Z2']]
             W = 1.0/np.maximum(data['score'],np.ones(data['score'].shape))
-        h1 = fit_h(data1,args,jk=False,M=self.M)
-        h2 = fit_h(data2,args,jk=False,M=self.M)
+        h1 = fit_h(data1,args,args.K1,args.P1,jk=False,M=self.M)
+        h2 = fit_h(data2,args,args.K2,args.P2,jk=False,M=self.M)
         try:
             _fts = data['score1'] # A bug was causing the next line not to error
             f = lambda x: self.nll(x,h1.h_res.x[1],h2.h_res.x[1],data['Z1'],
