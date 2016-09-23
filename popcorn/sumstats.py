@@ -6,10 +6,11 @@ import sys
 import argparse
 import warnings
 from time import time
-#from IPython import embed
+from IPython import embed
 
 compliment = {'A':'T','T':'A','G':'C','C':'G',
-              'a':'t','t':'a','g':'c','c':'g'}
+              'a':'t','t':'a','g':'c','c':'g',
+              1:1,2:2}
 
 class sumstats_1_trait(object):
     '''
@@ -167,14 +168,14 @@ class sumstats_2_trait(sumstats_1_trait):
         data1 = data1.loc[comm_snps]
         data2 = data2.loc[comm_snps]
         scores = scores.loc[comm_snps]
-        if not data1['a1'][0].isupper():
-            try:
+        try:
+            if not data1['a1'][0].isupper():
                 data1['a1'] = map(lambda x: x.upper(), data1['a1'])
                 data1['a2'] = map(lambda x: x.upper(), data1['a2'])
                 data2['a1'] = map(lambda x: x.upper(), data2['a1'])
                 data2['a2'] = map(lambda x: x.upper(), data2['a2'])
-            except AttributeError:
-                pass
+        except AttributeError:
+            pass
         try:
             af1, af2 = scores['af'], scores['af']
             self.two_pops = False

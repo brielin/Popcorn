@@ -7,11 +7,12 @@ import bottleneck as bn
 import sys
 from pysnptools.snpreader import Bed
 from pysnptools.standardizer import Unit
-#from IPython import embed
+from IPython import embed
 from time import time
 
 compliment = {'A':'T','T':'A','G':'C','C':'G',
-              'a':'t','t':'a','g':'c','c':'g'}
+              'a':'t','t':'a','g':'c','c':'g',
+              1:1,2:2}
 
 class covariance_scores_1_pop(object):
     '''
@@ -38,7 +39,7 @@ class covariance_scores_1_pop(object):
     def __init__(self,args):
         if args.window_type not in ['KBP','SNP']:
             raise ValueError('Window type not supported')
-        bed_1 = Bed(args.bfile) #
+        bed_1 = Bed(args.bfile,count_A1=False) #
         af1 = self.get_allele_frequency(bed_1,args) #
         print(len(af1), "SNPs in file 1")
         snps_1 = (af1>args.maf)&(af1<1-args.maf) #
@@ -191,8 +192,8 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
     def __init__(self,args):
         if args.window_type not in ['KBP','SNP']:
             raise ValueError('Window type not supported')
-        bed_1 = Bed(args.bfile1) #
-        bed_2 = Bed(args.bfile2)
+        bed_1 = Bed(args.bfile1,count_A1=False) #
+        bed_2 = Bed(args.bfile2,count_A1=False)
         af1 = self.get_allele_frequency(bed_1,args) #
         af2 = self.get_allele_frequency(bed_2,args)
         print(len(af1), "SNPs in file 1")
@@ -286,7 +287,7 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
                 a12c.append('N')
                 a21c.append('N')
                 a22c.append('N')
-        non_snp = (np.array(a11c) == 'N')
+        non_snp = (np.array(a11c,dtype='string') == 'N')
         bim_1['a1c'] = a11c
         bim_1['a2c'] = a12c
         bim_2['a1c'] = a21c
