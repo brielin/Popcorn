@@ -6,7 +6,7 @@ import sys
 import argparse
 import warnings
 from time import time
-from IPython import embed
+#from IPython import embed
 
 compliment = {'A':'T','T':'A','G':'C','C':'G',
               'a':'t','t':'a','g':'c','c':'g',
