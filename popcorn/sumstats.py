@@ -42,9 +42,9 @@ class sumstats_1_trait(object):
             data['SE'] = data1['SE']
         except KeyError:
             pass
-        print(len(data),"SNPs remaining after filtering on AF and self-"
-              "compliment SNPs.")
         self.data = data.loc[align1!=0]
+        print(len(self.data),"SNPs remaining after filtering on AF and self-"
+                        "compliment SNPs.")
 
     def parse_input(self,sfile):
         DF = pd.read_table(sfile)
@@ -236,6 +236,6 @@ class sumstats_2_trait(sumstats_1_trait):
         if self.two_pops and self.overlap:
             raise ValueError('Sample overlap between two populations'
                              ' specified.')
-        print(len(data),"SNPs remaining after filtering on AF and self-"
-              "compliment SNPs.")
         self.data = data.loc[(align1!=0)&(align2!=0)]
+        print(len(self.data),"SNPs remaining after filtering on AF and self-"
+                        "compliment SNPs.")
