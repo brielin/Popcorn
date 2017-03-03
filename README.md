@@ -46,10 +46,10 @@ bottleneck 1.0.0
 Test files:   
 Popcorn comes with several files in the test directory to verify output. If you want
 to make sure you have the software working correctly, run   
-`python -m Popcorn compute -v 2 --bfile1 Popcorn/test/EUR_ref --bfile2 Popcorn/test/EAS_ref --gen_effect Popcorn/test/EUR_EAS_test_ge.cscore'   
-
+`python -m Popcorn compute -v 2 --bfile1 Popcorn/test/EUR_ref --bfile2 Popcorn/test/EAS_ref --gen_effect Popcorn/test/EUR_EAS_test_ge.cscore`   
 The screen should show   
-`Popcorn version 0.9.6
+~~~
+Popcorn version 0.9.6
 (C) 2015-2016 Brielin C Brown
 University of California, Berkeley
 GNU General Public License v3
@@ -64,12 +64,14 @@ Beginning analysis at DATE
 T1
 T2
 TC
-Analysis finished at DATE'
+Analysis finished at DATE
+~~~
 
 Then run   
-`python -m Popcorn fit -v 1 --cfile Popcorn/test/EUR_EAS_test_ge.cscore --gen_effect --sfile1 Popcorn/test/EUR_test.txt --sfile2 Popcorn/test/EAS_test.txt Popcorn/test/EAS_EUR_test_ge_result.txt'   
-The screen should show   
-`Popcorn version 0.9.6
+`python -m Popcorn fit -v 1 --cfile Popcorn/test/EUR_EAS_test_ge.cscore --gen_effect --sfile1 Popcorn/test/EUR_test.txt --sfile2 Popcorn/test/EAS_test.txt Popcorn/test/EAS_EUR_test_ge_result.txt`   
+The screen should show
+~~~   
+Popcorn version 0.9.6
 (C) 2015-2016 Brielin C Brown
 University of California, Berkeley
 GNU General Public License v3
@@ -92,7 +94,8 @@ h1^2   0.682685  0.050053  13.639243  0.000000
 h2^2   0.340257  0.034388   9.894545  0.000000
 pge    0.053720  3.836284   0.246666  0.805167
 Analysis finished at DATE
-Total time elapsed: T'   
+Total time elapsed: T
+~~~
 
 Do not hesitate to contact me with questions as this is early stage software!
 
