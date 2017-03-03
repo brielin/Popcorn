@@ -43,6 +43,56 @@ pandas 0.17.1
 pysnptools 0.3.9  
 bottleneck 1.0.0  
 
+Test files:
+Popcorn comes with several files in the test directory to verify output. If you want
+to make sure you have the software working correctly, run
+`python -m Popcorn compute -v 2 --bfile1 Popcorn/test/EUR_ref --bfile2 Popcorn/test/EAS_ref --gen_effect Popcorn/test/EUR_EAS_test_ge.cscore'
+The screen should show
+`Popcorn version 0.9.6
+(C) 2015-2016 Brielin C Brown
+University of California, Berkeley
+GNU General Public License v3
+
+Invoking command: python /home/brielin/CoHeritability/Popcorn/__main__.py compute -v 2 --bfile1 Popcorn/test/EUR_ref --bfile2 Popcorn/test/EAS_ref Popcorn/test/EUR_EAS_test.cscore
+Beginning analysis at DATE
+50000 SNPs in file 1
+50000 SNPs in file 2
+49855 SNPs in file 1 after MAF filter
+44021 SNPs in file 2 after MAF filter
+43898 SNPs common in both populations
+T1
+T2
+TC
+Analysis finished at DATE'
+
+Then run
+`python -m Popcorn fit -v 1 --cfile Popcorn/test/EUR_EAS_test_ge.cscore --gen_effect --sfile1 Popcorn/test/EUR_test.txt --sfile2 Popcorn/test/EAS_test.txt Popcorn/test/EAS_EUR_test_ge_result.txt'
+The screen should show
+`Popcorn version 0.9.6
+(C) 2015-2016 Brielin C Brown
+University of California, Berkeley
+GNU General Public License v3
+
+Invoking command: python /home/brielin/CoHeritability/Popcorn/__main__.py fit -v 1 --cfile Popcorn/test/EUR_EAS_test_ge.cscore --gen_effect --sfile1 Popcorn/test/EUR_test.txt --sfile2 Popcorn/test/EAS_test.txt Popcorn/test/EAS_EUR_test_ge_result.txt
+Beginning analysis at DATE
+Analyzing a pair of traits in two populations
+49999 49999 SNPs detected in input.
+43897 SNPs remaining after merging with score file.
+43897 SNPs remaining after filtering on AF and self-compliment SNPs.
+Initial estimate:
+       Val (obs)  SE
+h1^2   0.682685 NaN
+h2^2   0.340257 NaN
+pg     0.053720 NaN
+Performing jackknife estimation of the standard error using 200 blocks of size 219 .
+Jackknife iter: 200
+      Val (obs)        SE          Z     P (Z)
+h1^2   0.682685  0.050053  13.639243  0.000000
+h2^2   0.340257  0.034388   9.894545  0.000000
+pge    0.053720  3.836284   0.246666  0.805167
+Analysis finished at DATE
+Total time elapsed: T'
+
 Do not hesitate to contact me with questions as this is early stage software!
 
 For more details of the method please see: http://biorxiv.org/content/early/2016/02/23/036657 or http://www.cell.com/ajhg/abstract/S0002-9297(16)30135-5
