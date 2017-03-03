@@ -47,6 +47,7 @@ Test files:
 Popcorn comes with several files in the test directory to verify output. If you want
 to make sure you have the software working correctly, run   
 `python -m Popcorn compute -v 2 --bfile1 Popcorn/test/EUR_ref --bfile2 Popcorn/test/EAS_ref --gen_effect Popcorn/test/EUR_EAS_test_ge.cscore'   
+
 The screen should show   
 `Popcorn version 0.9.6
 (C) 2015-2016 Brielin C Brown
