@@ -192,16 +192,31 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
     def __init__(self,args):
         if args.window_type not in ['KBP','SNP']:
             raise ValueError('Window type not supported')
+        # Open files
         bed_1 = Bed(args.bfile1,count_A1=False) #
         bed_2 = Bed(args.bfile2,count_A1=False)
+        # Get indel locations, if any
+        bim_1=pd.read_table(bed_1.filename+'.bim',header=None,
+                            names=['chm','id','pos_mb','pos_bp','a1','a2'])
+        bim_2=pd.read_table(bed_2.filename+'.bim',header=None,
+                            names=['chm','id','pos_mb','pos_bp','a1','a2'])
+        is_indel_1 = np.array([(len(a1)>1)|(len(a2)>1)  for a1,a2 in bim_1[['a1','a2']].values])
+        is_indel_2 = np.array([(len(a1)>1)|(len(a2)>1)  for a1,a2 in bim_2[['a1','a2']].values])
+        # Make sure two SNPs don't have the same position
+        bim_1.index=bim_1.pos_bp
+        bim_2.index=bim_2.pos_bp
+        is_duplicated_1=bim_1.index.duplicated()
+        is_duplicated_2=bim_2.index.duplicated()
+        # Get allele frequencies
         af1 = self.get_allele_frequency(bed_1,args) #
         af2 = self.get_allele_frequency(bed_2,args)
-        print(len(af1), "SNPs in file 1")
-        print(len(af2), "SNPs in file 2")
-        snps_1 = (af1>args.maf)&(af1<1-args.maf) #
-        snps_2 = (af2>args.maf)&(af2<1-args.maf)
-        print(np.sum(snps_1), "SNPs in file 1 after MAF filter")
-        print(np.sum(snps_2), "SNPs in file 2 after MAF filter")
+        print(len(af1), "Variants in file 1")
+        print(len(af2), "Variants in file 2")
+        # Get good SNPs
+        snps_1 = (af1>args.maf)&(af1<1-args.maf)&(~is_indel_1)&(~is_duplicated_1) #
+        snps_2 = (af2>args.maf)&(af2<1-args.maf)&(~is_indel_2)&(~is_duplicated_2)
+        print(np.sum(snps_1), "SNPs in file 1 after MAF and indel filter")
+        print(np.sum(snps_2), "SNPs in file 2 after MAF and indel filter")
         if (args.from_bp is not None) and (args.to_bp is not None):
             k1 = (bed_1.pos[:,2]>args.from_bp)&(bed_1.pos[:,2]<args.to_bp)
             k2 = (bed_2.pos[:,2]>args.from_bp)&(bed_2.pos[:,2]<args.to_bp)
@@ -222,8 +237,6 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
         else:
             alignment = np.ones(len(bed_1_index))
         pos = bed_1.pos[bed_1_index] #
-        bim_1=pd.read_table(bed_1.filename+'.bim',header=None,
-                            names=['chm','id','pos_mb','pos_bp','a1','a2'])
         af1 = af1[bed_1_index] #
         af2 = af2[bed_2_index]
         # if args.afile1 is not None:
@@ -243,8 +256,8 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
         self.chr = pos[:,0]
         self.pos = pos[:,2]
         self.id = bed_1.sid[bed_1_index]
-        self.A1 = bim_1['a1'].loc[bed_1_index]
-        self.A2 = bim_1['a2'].loc[bed_1_index]
+        self.A1 = bim_1['a1'].iloc[bed_1_index]
+        self.A2 = bim_1['a2'].iloc[bed_1_index]
         self.windows = self.get_windows(pos,args) #
         self.scores1 = self.compute(bed_1,bed_1_index,af1,a1,args)
         self.scores2 = self.compute(bed_2,bed_2_index,af2,a2,args) #
