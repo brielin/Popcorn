@@ -9,7 +9,7 @@ import traceback
 from scipy import optimize, stats
 from IPython import embed
 from time import time
-from . import jackknife
+import jackknife
 
 class fit_by_region(object):
     def __init__(self,data,args,t,M):

@@ -2,12 +2,11 @@ from __future__ import division
 from __future__ import print_function
 import numpy as np
 import pandas as pd
-import statsmodels.api as sm
 import bottleneck as bn
 import sys
 from pysnptools.snpreader import Bed
 from pysnptools.standardizer import Unit
-from IPython import embed
+# from IPython import embed
 from time import time
 
 compliment = {'A':'T','T':'A','G':'C','C':'G',
@@ -124,8 +123,9 @@ class covariance_scores_1_pop(object):
         np.divide(X,np.sqrt(v),out=X)
         return X
 
-    def _condition_ancestry(self,X,a):
-        return sm.OLS(X,sm.add_constant(a)).fit().resid
+    # TODO: test ancestry conditioning
+    # def _condition_ancestry(self,X,a):
+    #     return sm.OLS(X,sm.add_constant(a)).fit().resid
 
     def compute(self,bed_1,bed_1_index,af,a1,args):
         N = bed_1.iid_count
@@ -145,8 +145,8 @@ class covariance_scores_1_pop(object):
         scores = np.zeros((self.M))
         li,ri = self.windows[0]
         A1 = self._norm_data(bed_1[:,bed_1_index[li:ri]].read().val)
-        if a1 is not None:
-            A1 = self._condition_ancestry(A1,a1['theta'].values)
+        # if a1 is not None:
+        #    A1 = self._condition_ancestry(A1,a1['theta'].values)
         R1 = np.dot(A1.T,A1/N)
         scores[li:ri] += func(R1,li,ri)[0]
         nstr = np.max((1000,ri-li))
@@ -158,8 +158,8 @@ class covariance_scores_1_pop(object):
             sys.stdout.flush()
             X1n= self._norm_data(bed_1[:,bed_1_index[i:(i+nstr)]].read().val)
             A1 = np.hstack((A1,X1n))
-            if a1 is not None:
-                A1 = self._condition_ancestry(A1,a1['theta'].values)
+            # if a1 is not None:
+            #     A1 = self._condition_ancestry(A1,a1['theta'].values)
             for j in xrange(i,np.min((i+nstr,self.M))):
                 lb,rb = self.windows[j]
                 lbp = lb-offset
@@ -203,18 +203,19 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
         is_indel_1 = np.array([(len(a1)>1)|(len(a2)>1)  for a1,a2 in bim_1[['a1','a2']].values])
         is_indel_2 = np.array([(len(a1)>1)|(len(a2)>1)  for a1,a2 in bim_2[['a1','a2']].values])
         # Make sure two SNPs don't have the same position
-        bim_1.index=bim_1.pos_bp
-        bim_2.index=bim_2.pos_bp
-        is_duplicated_1=bim_1.index.duplicated()
-        is_duplicated_2=bim_2.index.duplicated()
+        is_duplicated_bp_1=bim_1.pos_bp.duplicated()
+        is_duplicated_bp_2=bim_2.pos_bp.duplicated()
+        # Make sure two SNPs don't have the same ID
+        is_duplicated_id_1=bim_1.id.duplicated()
+        is_duplicated_id_2=bim_2.id.duplicated()
         # Get allele frequencies
         af1 = self.get_allele_frequency(bed_1,args) #
         af2 = self.get_allele_frequency(bed_2,args)
         print(len(af1), "Variants in file 1")
         print(len(af2), "Variants in file 2")
         # Get good SNPs
-        snps_1 = (af1>args.maf)&(af1<1-args.maf)&(~is_indel_1)&(~is_duplicated_1) #
-        snps_2 = (af2>args.maf)&(af2<1-args.maf)&(~is_indel_2)&(~is_duplicated_2)
+        snps_1 = (af1>args.maf)&(af1<1-args.maf)&(~is_indel_1)&(~is_duplicated_bp_1)&(~is_duplicated_id_1) #
+        snps_2 = (af2>args.maf)&(af2<1-args.maf)&(~is_indel_2)&(~is_duplicated_bp_2)&(~is_duplicated_id_2)
         print(np.sum(snps_1), "SNPs in file 1 after MAF and indel filter")
         print(np.sum(snps_2), "SNPs in file 2 after MAF and indel filter")
         if (args.from_bp is not None) and (args.to_bp is not None):
@@ -222,7 +223,7 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
             k2 = (bed_2.pos[:,2]>args.from_bp)&(bed_2.pos[:,2]<args.to_bp)
             snps_1 = snps_1&k1
             snps_2 = snps_2&k2
-        snps_to_use = np.intersect1d(bed_1.sid[snps_1],bed_2.sid[snps_2])
+        snps_to_use = np.intersect1d(bed_1.sid[snps_1.values],bed_2.sid[snps_2.values])
         print(len(snps_to_use),"SNPs common in both populations")
         if args.extract is not None:
             keep = np.array([l.strip() for l in open(args.extract,'r')])
@@ -362,10 +363,10 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
         li,ri = self.windows[0]
         A1 = bed_1[:,bed_1_index[li:ri]].read().standardize(Unit()).val
         A2 = bed_2[:,bed_2_index[li:ri]].read().standardize(Unit()).val
-        if a1 is not None:
-            A1 = self._condition_ancestry(A1,a1['theta'].values)
-        if a2 is not None:
-            A2 = self._condition_ancestry(A2,a2['theta'].values)
+        # if a1 is not None:
+        #     A1 = self._condition_ancestry(A1,a1['theta'].values)
+        # if a2 is not None:
+        #     A2 = self._condition_ancestry(A2,a2['theta'].values)
         R1 = np.dot(A1.T,A1/self.N[0])
         R2 = np.dot(A2.T,A2/self.N[1])
         align_mat = np.outer(alignment[li:ri],alignment[li:ri])
@@ -382,10 +383,10 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
             X2n= bed_2[:,bed_2_index[i:(i+nstr)]].read().standardize(Unit()).val
             A1 = np.hstack((A1,X1n))
             A2 = np.hstack((A2,X2n))
-            if a1 is not None:
-                A1 = self._condition_ancestry(A1,a1['theta'].values)
-            if a2 is not None:
-                A2 = self._condition_ancestry(A2,a2['theta'].values)
+            # if a1 is not None:
+            #     A1 = self._condition_ancestry(A1,a1['theta'].values)
+            # if a2 is not None:
+            #     A2 = self._condition_ancestry(A2,a2['theta'].values)
             for j in xrange(i,np.min((i+nstr,self.M))):
                 lb,rb = self.windows[j]
                 lbp = lb-offset
