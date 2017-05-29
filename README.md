@@ -9,19 +9,33 @@ these roughly correspond to the similarity of the LD at each SNP across the popu
 2. Fit mode: fitting the heritability and transethnic genetic correlation of
 a pair of summary statistics files to the scores
 
-There is no need to install Popcorn. Simply clone the git repository to a folder
-called popcorn and run with python -m popcorn {compute,fit} <arguments> outfile. Please see the examples
-below and the argument documentations for details.
+# Installation
+Popcorn can be installed with setuptools or it can be run by executing the main. To install with setuptools
 
-Example usage:  
-`python -m popcorn compute -v 1 --bfile1 /path/to/EUR_refpanel --bfile2 /path/to/EAS_refpanel scores.txt`  
-`python -m popcorn fit -v 1 --cfile scores.txt --sfile1 /path/to/EUR_sumstats.txt --sfile2 /path/to/EAS_sumstats.txt EUR_EAS_corr.txt`  
+```
+cd Popcorn
+python setup.py install
+```
+
+and all of the requirements will be installed automatically. In this case you can then run popcorn
+with 
+
+`popcorn {compute, fit} <arguments> outfile`
+
+Otherwise, install the requirements (using `pip install -r requirements.txt` or otherwise) and
+execute the main directly with `python Popcorn/popcorn/__main__.py {compute, fit} <arguments> outfile`
+
+Please see the examples below and the argument documentations for details.
+
+# Example usage:  
+`popcorn compute -v 1 --bfile1 /path/to/EUR_refpanel --bfile2 /path/to/EAS_refpanel scores.txt`  
+`popcorn fit -v 1 --cfile scores.txt --sfile1 /path/to/EUR_sumstats.txt --sfile2 /path/to/EAS_sumstats.txt EUR_EAS_corr.txt`  
 
 For a full list of arguments and documentations type:  
-`python -m popcorn compute -h`  
-`python -m popcorn fit -h`  
+`popcorn compute -h`  
+`popcorn fit -h`  
 
-Output:  
+# Output:  
 Popcorn reports the common-SNP observed scale (Val (Obs)) heritability (h^2) for both populations (h1^2 and h2^2),
 the genetic effect or genetic impact correlation (pge or pgi), and the standard error of
 these estimates (SE). If a transormation to the underlying liability scale is requested,
@@ -31,19 +45,18 @@ reported is for a test that the heritability is *greater than 0*: P(h^2 > 0.0). 
 case of genetic correlation the p-value reported is for a test that the genetic correlation
 is *less than 1.0*: P(pg < 1.0).
 
-Dependences:  
+# Dependences:  
 Popcorn was developed using the following external python libraries.
 If you experience problems running Popcorn, try updating your libraries,
 epecially less stable ones like Pandas, Pysnptools and Statsmodels,
 to the versions listed here.  
 numpy 1.9.2  
 scipy 0.16.1  
-statsmodels 0.6.1  
 pandas 0.17.1  
 pysnptools 0.3.9  
 bottleneck 1.0.0  
 
-Test files:   
+# Test files:   
 Popcorn comes with several files in the test directory to verify output. If you want
 to make sure you have the software working correctly, run   
 `python -m Popcorn compute -v 2 --bfile1 Popcorn/test/EUR_ref --bfile2 Popcorn/test/EAS_ref --gen_effect Popcorn/test/EUR_EAS_test_ge.cscore`   
