@@ -1,6 +1,5 @@
 numpy 
 scipy 
-statsmodels
 pandas
 pysnptools
 bottleneck
