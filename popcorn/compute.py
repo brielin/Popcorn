@@ -6,7 +6,7 @@ import bottleneck as bn
 import sys
 from pysnptools.snpreader import Bed
 from pysnptools.standardizer import Unit
-# from IPython import embed
+from IPython import embed
 from time import time
 
 compliment = {'A':'T','T':'A','G':'C','C':'G',
@@ -200,8 +200,12 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
                             names=['chm','id','pos_mb','pos_bp','a1','a2'])
         bim_2=pd.read_table(bed_2.filename+'.bim',header=None,
                             names=['chm','id','pos_mb','pos_bp','a1','a2'])
-        is_indel_1 = np.array([(len(a1)>1)|(len(a2)>1)  for a1,a2 in bim_1[['a1','a2']].values])
-        is_indel_2 = np.array([(len(a1)>1)|(len(a2)>1)  for a1,a2 in bim_2[['a1','a2']].values])
+        try:
+            is_indel_1 = np.array([(len(a1)>1)|(len(a2)>1)  for a1,a2 in bim_1[['a1','a2']].values])
+            is_indel_2 = np.array([(len(a1)>1)|(len(a2)>1)  for a1,a2 in bim_2[['a1','a2']].values])
+        except TypeError: #Non-character alleles, eg. in testing
+            is_indel_1 = np.repeat(False,len(bim_1))
+            is_indel_2 = np.repeat(False,len(bim_2))
         # Make sure two SNPs don't have the same position
         is_duplicated_bp_1=bim_1.pos_bp.duplicated()
         is_duplicated_bp_2=bim_2.pos_bp.duplicated()
