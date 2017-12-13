@@ -215,24 +215,27 @@ class sumstats_2_trait(sumstats_1_trait):
             data['SE2'] = data2['SE']
         except KeyError:
             pass
-        try:
-            # Haven't tested, probably doesn't work
-            Ns = pd.read_table(args.Ns,index_col=0)
-            comm = NS.index.intersection(data.index)
-            data['Ns'] = Ns.loc[comm]
-        except IOError:
+        if not self.two_pops:
             try:
-                Ns = float(args.Ns)
-                if Ns < 1.0:
-                    data['Ns'] = Ns*data['N1']
-                else:
-                    data['Ns'] = Ns
-            except TypeError:
-                if self.two_pops == False:
+                # Haven't tested, probably doesn't work
+                Ns = pd.read_table(args.Ns,index_col=0)
+                comm = NS.index.intersection(data.index)
+                data['Ns'] = Ns.loc[comm]
+            except (IOError, ValueError):
+                try:
+                    Ns = float(args.Ns)
+                    if Ns < 1.0:
+                        data['Ns'] = Ns*data['N1']
+                    else:
+                        data['Ns'] = Ns
+                except TypeError:
                     print('Note: Sample overlap not specified,'
                           ' assuming 0.')
-                data['Ns'] = 0
-        self.overlap = np.all(data['Ns'])
+                    data['Ns'] = 0
+        try:
+            self.overlap = np.all(data['Ns'])
+        except KeyError:
+            self.overlap = False
         if self.two_pops and self.overlap:
             raise ValueError('Sample overlap between two populations'
                              ' specified.')
