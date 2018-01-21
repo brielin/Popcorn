@@ -89,6 +89,8 @@ def main(args=None):
     parser_compute.add_argument('--extract',default=None,help='Specify a text'
                                 ' file containing a whitespace separated list'
                                 ' of SNP IDs for use in the computation.')
+    parser_compute.add_argument('--use_bias', default=False, action='store_true',
+                                help='Use biased estimate of correlation.')
     # parser_compute.add_argument('--afile',help='Specify ancestry file for'
     #                             'conditioning in admixed populations.',
     #                             default=None)

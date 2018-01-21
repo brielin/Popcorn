@@ -6,12 +6,10 @@ import bottleneck as bn
 import sys
 from pysnptools.snpreader import Bed
 from pysnptools.standardizer import Unit
-# from IPython import embed
+#from IPython import embed
 from time import time
 
-compliment = {'A':'T','T':'A','G':'C','C':'G',
-              'a':'t','t':'a','g':'c','c':'g',
-              1:3,2:4}
+compliment = {'A':'T', 'T':'A', 'G':'C', 'C':'G', 'a':'t', 't':'a', 'g':'c', 'c':'g', 1:3, 2:4}
 
 class covariance_scores_1_pop(object):
     '''
@@ -131,15 +129,19 @@ class covariance_scores_1_pop(object):
         N = bed_1.iid_count
         if args.gen_effect:
             v1m = np.mean(2*af*(1-af))
-            def func(a,i,j):
+            def func(a, i, j):
                 af1 = af[i:j]
                 v = (2*af1*(1-af1))/v1m
                 v1j = 2*(af1[-1]*(1-af1[-1]))/v1m
                 c = a**2
+                if not args.use_bias:
+                    c = c - (1-c)/(N-2)
                 return (v*c).sum(1), (v1j*(c)).sum(0)[0:-1]
         else:
-            def func(a,i,j):
+            def func(a, i, j):
                 c = a**2
+                if not args.use_bias:
+                    c = c - (1-c)/(N-2)
                 return c.sum(1), c.sum(0)[0:-1]
         t=time()
         scores = np.zeros((self.M))
@@ -352,10 +354,16 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
                 v1j = 2*(af1[-1]*(1-af1[-1]))/v1m
                 v2j = 2*(af2[-1]*(1-af2[-1]))/v2m
                 c = a*b
+                if not args.use_bias:
+                    correction = (1 - np.abs(c))/np.sqrt((self.N[0]-2)*(self.N[1]-2))
+                    c = c - np.sign(c)*correction
                 return (v*c).sum(1), (np.sqrt(v1j*v2j)*(c)).sum(0)[0:-1]
         else:
             def func(a,b,i,j):
                 c = a*b
+                if not args.use_bias:
+                    correction = (1 - np.abs(c))/np.sqrt((self.N[0]-2)*(self.N[1]-2))
+                    c = c - np.sign(c)*correction
                 return c.sum(1), c.sum(0)[0:-1]
         t=time()
         scores = np.zeros((self.M))
