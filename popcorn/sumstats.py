@@ -1,12 +1,13 @@
 from __future__ import division
 from __future__ import print_function
 import numpy as np
+from scipy import stats
 import pandas as pd
 import sys
 import argparse
 import warnings
 from time import time
-# from IPython import embed
+from IPython import embed
 
 compliment = {'A':'T','T':'A','G':'C','C':'G',
               'a':'t','t':'a','g':'c','c':'g',
@@ -46,7 +47,7 @@ class sumstats_1_trait(object):
         print(len(self.data),"SNPs remaining after filtering on AF and self-"
                         "compliment SNPs.")
 
-    def parse_input(self,sfile):
+    def parse_input(self, sfile):
         DF = pd.read_table(sfile)
         data = pd.DataFrame()
         try:
@@ -92,9 +93,20 @@ class sumstats_1_trait(object):
             try:
                 data['Z'] = DF['Z']
             except KeyError:
-                raise ValueError('Must provide either signed Z-scores "Z" or'
-                                 '"beta" and "SE"')
+                try:
+                    beta, Z, SE = self.odds_to_beta(
+                        DF['OR'].values, DF['p-value'].values)
+                    data['beta'] = beta
+                    data['SE'] = SE
+                    data['Z'] = Z
+                except KeyError:
+                    raise ValueError(
+                        'Must provide either signed Z-scores 1) "Z", 2) "beta" and "SE",'
+                        ' or 3) "OR" and "p-value"')
         data.index = data['id']
+        has_comp = data[['a1', 'a2']].applymap(lambda x: x in compliment)
+        valid_alleles = np.logical_and(has_comp['a1'], has_comp['a2'])
+        data=data.loc[valid_alleles]
         # else:
         #     data = pd.read_table(sfile,sep='\t',header=None,
         #                          names=['chr','id','pos','af','a1','a2',
@@ -105,6 +117,12 @@ class sumstats_1_trait(object):
         #     id_type='rsid'
         #     data.index = data['id']
         return data, id_type
+
+    def odds_to_beta(self, odds, pval):
+        beta = np.log(odds)
+        Z = np.sign(beta)*stats.norm.ppf(1 - pval/2)
+        SE = beta/Z
+        return beta, Z, SE
 
     # Similar enough to the one in compute.py to be rolled into one function
     def align_to_scores(self, data, a1, a2, afr, tol=0.1):

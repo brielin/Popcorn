@@ -10,6 +10,9 @@ from scipy import optimize, stats
 # from IPython import embed
 from time import time
 import jackknife
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 class fit_by_region(object):
     def __init__(self,data,args,t,M):
@@ -97,6 +100,15 @@ class fit_h(object):
         self.res['Z'] = self.res['Val (obs)']/self.res['SE']
         self.res['P(h^2 > 0)'] = 1-stats.chi2.cdf(self.res['Z']**2,1)
         self.res = pd.DataFrame(self.res.loc['h^2'])
+        # if args.plot_likelihood:
+        #     if args.no_intercept:
+        #         f=lambda x: self.nll_no_intercept(x,data['Z'],data['N'],self.M,
+        #                                           data['score'],W=W)
+        #     else:
+        #         f=lambda x: self.nll(x,data['Z'],data['N'],self.M,data['score'],W=W)
+        #     x_vals = np.linspace(0, 1, num=100)
+        #     l_vals = np.array([f(x) for x in x_vals])
+        #     plt.plot(x_vals, l_vals, 'bs--')
         # self.res['LR'] = 2*(self.null_ll-self.alt_ll)
         # self.res['P (LRT)'] = 1-stats.chi2.cdf(self.res['LR'],1)
 
@@ -174,6 +186,12 @@ class fit_pg(fit_h):
         else: self.M = M
         self.h1_res, self.sy1, self.h2_res, self.sy2, self.pg_res, self.ll =\
             self.__call__(data,args)
+        if args.plot_likelihood:
+            x_vals = np.linspace(-1.5, 1.5, num=200)
+            l_vals = np.array([self.ll(x) for x in x_vals])
+            plt.plot(x_vals, l_vals, 'bs--')
+            plt.savefig(args.out + '.png')
+
         h1r = self.h1_res.h_res.x[1]
         h2r = self.h2_res.h_res.x[1]
         pgr = self.pg_res.x
