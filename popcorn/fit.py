@@ -6,9 +6,11 @@ import sys
 import argparse
 import logging
 import traceback
+import statsmodels.api as sm
 from scipy import optimize, stats
-# from IPython import embed
+from IPython import embed
 from time import time
+from collections import namedtuple
 import jackknife
 import matplotlib
 matplotlib.use('Agg')
@@ -115,26 +117,49 @@ class fit_h(object):
     def __call__(self,data,args):
         W = 1.0/np.maximum(data['score'],np.ones(data['score'].shape))
         if args.no_intercept:
-            f=lambda x: self.nll_no_intercept(x,data['Z'],data['N'],self.M,
-                                               data['score'],W=W)
-            h = optimize.minimize_scalar(f,bounds=(0.0,1.0),method='bounded',
-                                         options={'disp':args.v-1,'xatol':args.tol})
-            sy = self.estimate_sy(data,h.x,data.shape[0])
-            h.x = [1.0,h.x]
+            if args.use_regression:
+                f = None
+                Y = (data['Z']**2)
+                X = data['score']*(data['N']/self.M)
+                #beta, _, _, _ = np.linalg.lstsq(X.reshape((X.shape[0], 1)), Y - 1.)
+                wls = sm.WLS(Y, X, W)
+                res_wls = wls.fit()
+                H_Res = namedtuple('H_Res', ['x'])
+                h = H_Res(x=[1.0, res_wls.params.values[0]])
+                sy = self.estimate_sy(data,h.x[1],data.shape[0])
+            else:
+                f=lambda x: self.nll_no_intercept(x,data['Z'],data['N'],self.M,
+                                                  data['score'],W=W)
+                h = optimize.minimize_scalar(f,bounds=(0.0,1.0),method='bounded',
+                                             options={'disp':args.v-1,'xatol':args.tol})
+                sy = self.estimate_sy(data,h.x,data.shape[0])
+                h.x = [1.0,h.x]
         else:
-            f=lambda x: self.nll(x,data['Z'],data['N'],self.M,data['score'],W=W)
-            for x1 in np.arange(0.0,1,0.05):
-                x0=[1.0,x1]
-                h = optimize.minimize(f,x0,bounds=((None,None),(0.0,1.0)),
-                                      options={'disp':args.v-1})
+            if args.use_regression:
+                f = None
+                Y = (data['Z']**2)
+                X = data['score']*(data['N']/self.M)
+                X = np.stack([np.ones(X.shape), X.values], 1)
+                #beta, _, _, _ = np.linalg.lstsq(X, Y)
+                wls = sm.WLS(Y, X, W)
+                res_wls = wls.fit()
+                H_Res = namedtuple('H_Res', ['x'])
+                h = H_Res(x=list(res_wls.params))
+                sy = self.estimate_sy(data,h.x[1],data.shape[0])
+            else:
+                f=lambda x: self.nll(x,data['Z'],data['N'],self.M,data['score'],W=W)
+                for x1 in np.arange(0.0,1,0.05):
+                    x0=[1.0,x1]
+                    h = optimize.minimize(f,x0,bounds=((None,None),(0.0,1.0)),
+                                          options={'disp':args.v-1})
+                    if not h.success:
+                        continue
+                    else:
+                        break
                 if not h.success:
-                    continue
-                else:
-                    break
-            if not h.success:
-                sys.stderr.write(h.message+'\n')
-                h.x = [np.nan,np.nan]
-            sy = self.estimate_sy(data,h.x[1],data.shape[0])
+                    sys.stderr.write(h.message+'\n')
+                    h.x = [np.nan,np.nan]
+                    sy = self.estimate_sy(data,h.x[1],data.shape[0])
         return h, sy, f
 
     def estimate_sy(self,data,h1,M):
@@ -244,27 +269,39 @@ class fit_pg(fit_h):
             W = 1.0/np.maximum(data['score'],np.ones(data['score'].shape))
         h1 = fit_h(data1,args,args.K1,args.P1,jk=False,M=self.M)
         h2 = fit_h(data2,args,args.K2,args.P2,jk=False,M=self.M)
-        try:
-            _fts = data['score1'] # A bug was causing the next line not to error
+        if 'score1' in data.columns:
+            L1=data['score1']
+            L2=data['score2']
+            LX=data['scoreX']
+        else:
+            L1=data['score']
+            L2=data['score']
+            LX=data['score']
+        if args.use_regression:
+            Y = data['Z1']*data['Z2']
+            X = LX*np.sqrt(data['N1']*data['N2'])/(self.M)
+            if not args.no_intercept:
+                X = sm.add_constant(X)
+            wls = sm.WLS(Y, X, W)
+            res_wls = wls.fit()
+            P_Res = namedtuple('P_Res', ['x'])
+            pg = P_Res(x=res_wls.params.values[1]/np.sqrt(h1.h_res.x[1]*h2.h_res.x[1]))
+            f=None
+        else:
             f = lambda x: self.nll(x,h1.h_res.x[1],h2.h_res.x[1],data['Z1'],
-                                   data['Z2'],data['score1'],data['score2'],
-                                   data['scoreX'],data['N1'],data['N2'],
+                                   data['Z2'],L1,L2,LX,score['N1'], score['N2'],
                                    self.M,W=W)
-        except KeyError:
-            f = lambda x: self.nll(x,h1.h_res.x[1],h2.h_res.x[1],data['Z1'],
-                                   data['Z2'],data['score'],data['score'],
-                                   data['score'],data['N1'],data['N2'],
-                                   self.M,W=W)
-        try:
-            data1['beta'] = data['beta1']
-            data2['beta'] = data['beta2']
-        except KeyError:
-            pass
-        pg = optimize.minimize_scalar(f,bounds=(-1.0,1.0),method='bounded',
-                                     options={'disp':args.v-1,'xatol':args.tol})
-        if not pg.success:
-            sys.stderr.write(pg.message+'\n')
-            pg.x=np.nan
+            try:
+                data1['beta'] = data['beta1']
+                data2['beta'] = data['beta2']
+            except KeyError:
+                pass
+            pg = optimize.minimize_scalar(f,bounds=(-1.0,1.0),method='bounded',
+                                        options={'disp':args.v-1,'xatol':args.tol})
+            if not pg.success:
+                sys.stderr.write(pg.message+'\n')
+                pg.x=np.nan
+
         if h1.h_res.x[1] == 0 or h2.h_res.x[1] == 0:
             pg.x = np.nan
         sy1 = self.estimate_sy(data1,h1.h_res.x[1],data1.shape[0])

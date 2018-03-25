@@ -133,6 +133,8 @@ def main(args=None):
                             help='Fixes intercept of heritability to be 1.0.')
     parser_fit.add_argument('--plot_likelihood', default=False, action='store_true',
                             help='Plot the likehood as a function of the parameter.')
+    parser_fit.add_argument('--use_regression', default=False, action='store_true',
+                            help=argparse.SUPPRESS)
     args = parser.parse_args()
 
     # Set up logger to print to log file and std out
