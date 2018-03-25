@@ -27,11 +27,30 @@ execute the main directly with `python Popcorn/popcorn/__main__.py {compute, fit
 
 Please see the examples below and the argument documentations for details.
 
-# Example usage:  
+# File formats and usage information
+For computing scores, reference genotypes in plink binary (BED) format are required. See <http://www.cog-genomics.org/plink/1.9/input#bed> for more information on that format. PLINK2 can also be used for converting reference genomes in VCF format to BED format. The basic command to compute scores for two populations is
+
 `popcorn compute -v 1 --bfile1 /path/to/EUR_refpanel --bfile2 /path/to/EAS_refpanel scores.txt`  
-`popcorn fit -v 1 --cfile scores.txt --sfile1 /path/to/EUR_sumstats.txt --sfile2 /path/to/EAS_sumstats.txt EUR_EAS_corr.txt`  
+
+Which will create a file "scores.txt" in the local directory with 10 columns and no header. In order, the columns represent Chromosome, Base Position, SNP ID, Allele 1, Allele 2, Frequency of A2 in POP1, Frequency of A2 in POP2, LD score in POP1, LD score in POP2, and Cross-covariance score. If you compute scores for each chromosome separately, you can easily cat them together:
+
+`cat scores_{1..22}.txt > scores_all.txt`
+
+Pre-computed scores for EUR and EAS 1000 genomes populations are provided at <https://www.dropbox.com/sh/37n7drt7q4sjrzn/AAAa1HFeeRAE5M3YWG9Ac2Bta>.
+
+After this, you can compute the trans-ethnic genetic correlation using the scores and your summary statistics. The summary statistics file must contain:
+- SNP information in the form an 'rsid' or 'SNP' column with ID names or 'chr' and 'pos' columns with the chromosome number (no "chr") and base position.
+- Allele information in the form of 'a1' and 'a2' or 'A1' and 'A2' columns
+- 'N' column with per-SNP or whole study sample size
+- 'beta' and 'SE', 'OR' and 'p-value', or 'Z' columns represing allele significance
+- (Optional) an allele frquency 'AF' column with the frequency of A2. This will not be used except to align the effect direction of A/T or G/C SNPs which are otherwise discarded.
+
+The command to compute the heritability and genetic correlation is then:
+
+`popcorn fit -v 1 --cfile scores.txt --sfile1 /path/to/POP1_sumstats.txt --sfile2 /path/to/POP2_sumstats.txt correlation.txt`  
 
 For a full list of arguments and documentations type:  
+
 `popcorn compute -h`  
 `popcorn fit -h`  
 
@@ -44,6 +63,15 @@ and p-values corresponding to these Z-scores. In the case of heritability, the p
 reported is for a test that the heritability is *greater than 0*: P(h^2 > 0.0). In the
 case of genetic correlation the p-value reported is for a test that the genetic correlation
 is *less than 1.0*: P(pg < 1.0).
+
+# Analysis considerations and notable options
+Preprocessing of data summary statistics is not supported by Popcorn and must be done prior to analysis, however basic input checking is performed. Popcorn can filter on MAF and will attempt to align any mismatched alleles between the summary statistics and score files. Any other input filtering should be done prior to analysis. One example of this is the MHC regrion on Chromosome 6. If you do not filter the MHC before computing scores you might need to increase the number of SNPs in memory with the flag `--SNPs_to_store` from the default of 10000 to 20000 or more, depending on the density of your reference panel.
+
+Another consideration is whether to compute the genetic effect correlation or the genetic impact correlation. We generally believe genetic effect is a more realistic model, but most within population analyses use a quantity close to genetic impact. To use genetic effect, pass `--gen_effect` when computing scores and fitting the model. Note that in our analysis we used a conservative MAF threshold of 0.05. We suggesting using at least 0.01. The larger the cutoff, the closer the genetic effect and genetic impact results will be.
+
+In our analysis, we always tested the hypothesis that the genetic correlation was < 1.0 and the p-value reported is for that hypothesis. In other situations you might want to test that the genetic correlation is > 0.0.
+
+Finally, please note that while this method can compute heritability and single population genetic correlation, the method it uses is not the same as LD score regression. The heritability and single popualtion genetic correlation estimates may differ, sometimes substantially, from the results LDscore reports, but generally the 95% confidence intervals for the parameter estimates should overlap. If you get wildly different results with the two programs, please contact us.
 
 # Dependences:  
 Popcorn was developed using the following external python libraries.
