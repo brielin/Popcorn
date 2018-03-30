@@ -159,7 +159,7 @@ class fit_h(object):
                 if not h.success:
                     sys.stderr.write(h.message+'\n')
                     h.x = [np.nan,np.nan]
-                    sy = self.estimate_sy(data,h.x[1],data.shape[0])
+                sy = self.estimate_sy(data,h.x[1],data.shape[0])
         return h, sy, f
 
     def estimate_sy(self,data,h1,M):
@@ -289,7 +289,7 @@ class fit_pg(fit_h):
             f=None
         else:
             f = lambda x: self.nll(x,h1.h_res.x[1],h2.h_res.x[1],data['Z1'],
-                                   data['Z2'],L1,L2,LX,score['N1'], score['N2'],
+                                   data['Z2'],L1,L2,LX,data['N1'], data['N2'],
                                    self.M,W=W)
             try:
                 data1['beta'] = data['beta1']
