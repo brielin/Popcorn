@@ -41,6 +41,18 @@ class covariance_scores_1_pop(object):
         print(len(af1), "SNPs in file 1")
         snps_1 = (af1>args.maf)&(af1<1-args.maf) #
         print(np.sum(snps_1), "SNPs in file 1 after MAF filter")
+        # Omit SNPs with NA values for h2weight
+        if args.h2weight:
+            data = pd.read_table(args.bfile+'.h2weight',header=None,
+                                 names=['SNP','h2weight'],
+                                 index_col=False)
+            if(len(data['SNP']) != len(bed_1.sid) or
+                       (data['SNP'] == bed_1.sid).min() == False):
+                raise ValueError('SNPs disagree between bed/bim/fam and h2weight files')
+            h2weight = data['h2weight']
+            snps_1 = snps_1 & ~h2weight.isnull().values
+            print(np.sum(snps_1), "SNPs in file 1 after extracting non-NA h2weight")
+            del(data)
         if (args.from_bp is not None) and (args.to_bp is not None):
             k = (bed_1.pos[:,2]>args.from_bp)&(bed_1.pos[:,2]<args.to_bp)
             snps_1 = snps_1&k
@@ -59,6 +71,10 @@ class covariance_scores_1_pop(object):
         #                         names=['id1','id2','theta'])
         # else:
         a1 = None
+        try:
+            h2weight = h2weight[bed_1_index].values
+        except NameError:
+            h2weight = None
         self.af = af
         self.M = len(bed_1_index) #
         self.windows = self.get_windows(pos,args) #
@@ -67,7 +83,7 @@ class covariance_scores_1_pop(object):
         self.id = bed_1.sid[bed_1_index]
         self.A1 = bim_1['a1'].loc[bed_1_index]
         self.A2 = bim_1['a2'].loc[bed_1_index]
-        self.scores = self.compute(bed_1,bed_1_index,af,a1,args) #
+        self.scores = self.compute(bed_1,bed_1_index,af,a1,h2weight,args) #
 
     def get_windows(self,pos,args):
         if args.window_type == 'KBP':
@@ -125,7 +141,7 @@ class covariance_scores_1_pop(object):
     # def _condition_ancestry(self,X,a):
     #     return sm.OLS(X,sm.add_constant(a)).fit().resid
 
-    def compute(self,bed_1,bed_1_index,af,a1,args):
+    def compute(self,bed_1,bed_1_index,af,a1,h2weight,args):
         N = bed_1.iid_count
         if args.gen_effect:
             v1m = np.mean(2*af*(1-af))
@@ -136,6 +152,14 @@ class covariance_scores_1_pop(object):
                 c = a**2
                 if not args.use_bias:
                     c = c - (1-c)/(N-2)
+                return (v*c).sum(1), (v1j*(c)).sum(0)[0:-1]
+        elif args.h2weight:
+            v1m = np.mean(h2weight)
+            def func(a, i, j):
+                h2w1 = h2weight[i:j]
+                v = h2w1/v1m
+                v1j = h2w1[-1]/v1m
+                c = a**2
                 return (v*c).sum(1), (v1j*(c)).sum(0)[0:-1]
         else:
             def func(a, i, j):
@@ -220,6 +244,28 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
         snps_2 = (af2>args.maf)&(af2<1-args.maf)&(~is_indel_2)&(~is_duplicated_bp_2)&(~is_duplicated_id_2)
         print(np.sum(snps_1), "SNPs in file 1 after MAF and indel filter")
         print(np.sum(snps_2), "SNPs in file 2 after MAF and indel filter")
+        # Omit SNPs with NA values for h2weight
+        if (args.h2weight):
+            data = pd.read_table(args.bfile1+'.h2weight',header=None,
+                                 names=['SNP','h2weight'],
+                                 index_col=False)
+            if(len(data['SNP']) != len(bed_1.sid) or
+                       (data['SNP'] == bed_1.sid).min() == False):
+                raise ValueError('SNPs disagree between bed/bim/fam and h2weight files 1')
+            h2weight_1 = data['h2weight']
+            snps_1 = snps_1 & ~h2weight_1.isnull().values
+            print(np.sum(snps_1), "SNPs in file 1 after extracting non-NA h2weight")
+            del(data)
+            data = pd.read_table(args.bfile2+'.h2weight',header=None,
+                                 names=['SNP','h2weight'],
+                                 index_col=False)
+            if(len(data['SNP']) != len(bed_2.sid) or
+                       (data['SNP'] == bed_2.sid).min() == False):
+                raise ValueError('SNPs disagree between bed/bim/fam and h2weight files 2')
+            h2weight_2 = data['h2weight']
+            snps_2 = snps_2 & ~h2weight_2.isnull().values
+            print(np.sum(snps_2), "SNPs in file 2 after extracting non-NA h2weight")
+            del(data)
         if (args.from_bp is not None) and (args.to_bp is not None):
             k1 = (bed_1.pos[:,2]>args.from_bp)&(bed_1.pos[:,2]<args.to_bp)
             k2 = (bed_2.pos[:,2]>args.from_bp)&(bed_2.pos[:,2]<args.to_bp)
@@ -252,8 +298,16 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
         #                         names=['id1','id2','theta'])
         # else:
         a2 = None
+        try:
+            h2weight_1 = h2weight_1[bed_1_index].values
+            h2weight_2 = h2weight_2[bed_2_index].values
+        except NameError:
+            h2weight_1 = None
+            h2weight_2 = None
         self.af1 = af1 #
         self.af2 = af2
+        self.h2weight_1 = h2weight_1
+        self.h2weight_2 = h2weight_2
         self.M = len(bed_1_index) #
         self.N = (bed_1.iid_count, bed_2.iid_count) #
         self.chr = pos[:,0]
@@ -262,8 +316,8 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
         self.A1 = bim_1['a1'].iloc[bed_1_index]
         self.A2 = bim_1['a2'].iloc[bed_1_index]
         self.windows = self.get_windows(pos,args) #
-        self.scores1 = self.compute(bed_1,bed_1_index,af1,a1,args)
-        self.scores2 = self.compute(bed_2,bed_2_index,af2,a2,args) #
+        self.scores1 = self.compute(bed_1,bed_1_index,af1,a1,h2weight_1,args)
+        self.scores2 = self.compute(bed_2,bed_2_index,af2,a2,h2weight_2,args) #
         self.scoresX = self.compute2(bed_1,bed_1_index,bed_2,bed_2_index,
                                      alignment,a1,a2,args) #
 
@@ -357,6 +411,17 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
                 if not args.use_bias:
                     correction = (1 - np.abs(c))/np.sqrt((self.N[0]-2)*(self.N[1]-2))
                     c = c - np.sign(c)*correction
+                return (v*c).sum(1), (np.sqrt(v1j*v2j)*(c)).sum(0)[0:-1]
+        elif args.h2weight:
+            v1m = np.mean(self.h2weight_1)
+            v2m = np.mean(self.h2weight_2)
+            def func(a,b,i,j):
+                h2w1 = self.h2weight_1[i:j]
+                h2w2 = self.h2weight_2[i:j]
+                v = np.sqrt(h2w1*h2w2)/np.sqrt(v1m*v2m)
+                v1j = h2w1[-1]/v1m
+                v2j = h2w2[-1]/v2m
+                c = a*b
                 return (v*c).sum(1), (np.sqrt(v1j*v2j)*(c)).sum(0)[0:-1]
         else:
             def func(a,b,i,j):
