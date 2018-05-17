@@ -42,7 +42,7 @@ After this, you can compute the trans-ethnic genetic correlation using the score
 - SNP information in the form an 'rsid' or 'SNP' column with ID names or 'chr' and 'pos' columns with the chromosome number (no "chr") and base position.
 - Allele information in the form of 'a1' and 'a2' or 'A1' and 'A2' columns
 - 'N' column with per-SNP or whole study sample size
-- 'beta' and 'SE', 'OR' and 'p-value', or 'Z' columns represing allele significance
+- 'beta' and 'SE', 'OR' and 'p-value', or 'Z' columns represing allele significance. It doesn't matter whether the effect size is signed with respect to A1 as the effect allele or A2 as the effect allele as long as it is the same in the file for both populations (eg. signed wrt A1 as effect in pop1 and A2 as effect in pop2).
 - (Optional) an allele frquency 'AF' column with the frequency of A2. This will not be used except to align the effect direction of A/T or G/C SNPs which are otherwise discarded.
 
 The command to compute the heritability and genetic correlation is then:
