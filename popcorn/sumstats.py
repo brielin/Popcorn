@@ -7,7 +7,7 @@ import sys
 import argparse
 import warnings
 from time import time
-from IPython import embed
+# from IPython import embed
 
 compliment = {'A':'T','T':'A','G':'C','C':'G',
               'a':'t','t':'a','g':'c','c':'g',
@@ -145,6 +145,7 @@ class sumstats_1_trait(object):
         fac = (_data['a1']==a2c)&\
             (_data['a2']==a1c)&\
             (~self_compliment)
+
         af_s = abs(data['af']-afr) < tol
         af_f = abs(data['af']-(1-afr)) < tol
         saf = (_data['a1']==a1)&\
@@ -159,6 +160,7 @@ class sumstats_1_trait(object):
         facaf = (_data['a1']==a2c)&\
             (_data['a2']==a1c)&\
             self_compliment & af_f
+
         alignment = np.array(s+-1*f+c+-1*fac+saf+-1*faf+caf+-1*facaf)
         #keep = (alignment!=0)
         return alignment #data.loc[keep], alignment[keep]

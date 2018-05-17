@@ -6,7 +6,7 @@ import bottleneck as bn
 import sys
 from pysnptools.snpreader import Bed
 from pysnptools.standardizer import Unit
-#from IPython import embed
+from IPython import embed
 from time import time
 
 compliment = {'A':'T', 'T':'A', 'G':'C', 'C':'G', 'a':'t', 't':'a', 'g':'c', 'c':'g', 1:3, 2:4}
@@ -213,8 +213,10 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
         # Get allele frequencies
         af1 = self.get_allele_frequency(bed_1,args) #
         af2 = self.get_allele_frequency(bed_2,args)
+
         print(len(af1), "Variants in file 1")
         print(len(af2), "Variants in file 2")
+
         # Get good SNPs
         snps_1 = (af1>args.maf)&(af1<1-args.maf)&(~is_indel_1)&(~is_duplicated_bp_1)&(~is_duplicated_id_1) #
         snps_2 = (af2>args.maf)&(af2<1-args.maf)&(~is_indel_2)&(~is_duplicated_bp_2)&(~is_duplicated_id_2)
@@ -239,9 +241,11 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
                 self.align_alleles(bed_1,bed_1_index,af1,bed_2,bed_2_index,af2)
         else:
             alignment = np.ones(len(bed_1_index))
+
         pos = bed_1.pos[bed_1_index] #
         af1 = af1[bed_1_index] #
         af2 = af2[bed_2_index]
+        af2[alignment==-1] = (1-af2[alignment==-1])
         # if args.afile1 is not None:
         #     a1 =  pd.read_table(args.afile,header=None,sep='\s*',
         #                         names=['id1','id2','theta'])

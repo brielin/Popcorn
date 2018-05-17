@@ -29,9 +29,9 @@ class Logger(object):
         #you might want to specify some extra behavior here.
         pass
 
-__version__='0.9.7'
+__version__='0.9.8'
 header='Popcorn version '+__version__+'\n'\
-'(C) 2015-2017 Brielin C Brown\n'\
+'(C) 2015-2018 Brielin C Brown\n'\
 'University of California, Berkeley\n'\
 'GNU General Public License v3\n'
 

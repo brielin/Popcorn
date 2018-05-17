@@ -32,7 +32,7 @@ For computing scores, reference genotypes in plink binary (BED) format are requi
 
 `popcorn compute -v 1 --bfile1 /path/to/EUR_refpanel --bfile2 /path/to/EAS_refpanel scores.txt`  
 
-Which will create a file "scores.txt" in the local directory with 10 columns and no header. In order, the columns represent Chromosome, Base Position, SNP ID, Allele 1, Allele 2, Frequency of A2 in POP1, Frequency of A2 in POP2, LD score in POP1, LD score in POP2, and Cross-covariance score. If you compute scores for each chromosome separately, you can easily cat them together:
+Which will create a file "scores.txt" in the local directory with 10 columns and no header. In order, the columns represent Chromosome, Base Position, SNP ID, Allele 1, Allele 2, Frequency of A1 in POP1, Frequency of A1 in POP2, LD score in POP1, LD score in POP2, and Cross-covariance score. If you compute scores for each chromosome separately, you can easily cat them together:
 
 `cat scores_{1..22}.txt > scores_all.txt`
 
