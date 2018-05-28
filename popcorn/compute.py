@@ -160,6 +160,8 @@ class covariance_scores_1_pop(object):
                 v = h2w1/v1m
                 v1j = h2w1[-1]/v1m
                 c = a**2
+                if not args.use_bias:
+                    c = c - (1-c)/(N-2)
                 return (v*c).sum(1), (v1j*(c)).sum(0)[0:-1]
         else:
             def func(a, i, j):
@@ -422,6 +424,9 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
                 v1j = h2w1[-1]/v1m
                 v2j = h2w2[-1]/v2m
                 c = a*b
+                if not args.use_bias:
+                    correction = (1 - np.abs(c))/np.sqrt((self.N[0]-2)*(self.N[1]-2))
+                    c = c - np.sign(c)*correction
                 return (v*c).sum(1), (np.sqrt(v1j*v2j)*(c)).sum(0)[0:-1]
         else:
             def func(a,b,i,j):
