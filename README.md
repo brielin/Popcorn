@@ -82,7 +82,7 @@ numpy 1.14.2
 scipy 1.0.1  
 pandas 0.22.0  
 pysnptools 0.3.9  
-bottleneck 1.0.0
+bottleneck 1.0.0  
 statsmodels 0.8.0  
 
 # Test files:   
