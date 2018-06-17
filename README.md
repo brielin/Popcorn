@@ -125,15 +125,15 @@ Analyzing a pair of traits in two populations
 43897 SNPs remaining after filtering on AF and self-compliment SNPs.
 Initial estimate:
        Val (obs)  SE
-h1^2   0.170664 NaN
-h2^2   0.085050 NaN
-pg     0.339504 NaN
+h1^2   0.172133 NaN
+h2^2   0.086708 NaN
+pg     0.302372 NaN
 Performing jackknife estimation of the standard error using 200 blocks of size 219 .
 Jackknife iter: 200
       Val (obs)        SE          Z     P (Z)
-h1^2   0.170664  0.012510  13.642330      0
-h2^2   0.085050  0.008609   9.879724      0
-pge    0.339504  0.060602  10.898830      0
+h1^2   0.172133  0.012870  13.374388      0
+h2^2   0.086708  0.008555  10.135759      0
+pge    0.302372  0.053021  13.157553      0
 Analysis finished at DATE
 Total time elapsed: T
 ~~~
