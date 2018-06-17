@@ -84,6 +84,7 @@ pandas 0.22.0
 pysnptools 0.3.9  
 bottleneck 1.0.0  
 statsmodels 0.8.0  
+(to use --plot_likelihood) matplotlib 1.5.1
 
 # Test files:   
 Popcorn comes with several files in the test directory to verify output. If you want
