@@ -78,11 +78,12 @@ Popcorn was developed using the following external python libraries.
 If you experience problems running Popcorn, try updating your libraries,
 epecially less stable ones like Pandas, Pysnptools and Statsmodels,
 to the versions listed here.  
-numpy 1.9.2  
-scipy 0.16.1  
-pandas 0.17.1  
+numpy 1.14.2  
+scipy 1.0.1  
+pandas 0.22.0  
 pysnptools 0.3.9  
-bottleneck 1.0.0  
+bottleneck 1.0.0
+statsmodels 0.8.0  
 
 # Test files:   
 Popcorn comes with several files in the test directory to verify output. If you want

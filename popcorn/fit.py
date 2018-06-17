@@ -8,13 +8,10 @@ import logging
 import traceback
 import statsmodels.api as sm
 from scipy import optimize, stats
-from IPython import embed
+# from IPython import embed
 from time import time
 from collections import namedtuple
 import jackknife
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 
 class fit_by_region(object):
     def __init__(self,data,args,t,M):
@@ -212,6 +209,11 @@ class fit_pg(fit_h):
         self.h1_res, self.sy1, self.h2_res, self.sy2, self.pg_res, self.ll =\
             self.__call__(data,args)
         if args.plot_likelihood:
+            # This is bad, but it will avoid the dependency for people that dont
+            #  use this flag, most people shouldn't.
+            import matplotlib
+            matplotlib.use('Agg')
+            import matplotlib.pyplot as plt
             x_vals = np.linspace(-1.5, 1.5, num=200)
             l_vals = np.array([self.ll(x) for x in x_vals])
             plt.plot(x_vals, l_vals, 'bs--')
