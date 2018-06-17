@@ -52,6 +52,10 @@ def main(args=None):
                                ' correlation. This must be specified both'
                                ' when computing scores and fitting the model.',
                                default=False,action='store_true')
+    parent_parser.add_argument('--h2weight',help='Incorporate per-SNP h2'
+                               ' weighting from file. The filename should be'
+                               ' (radix of binary plink file).h2weight',
+                               default=False,action='store_true')
     parent_parser.add_argument('--from_bp',default=None,type=int,help='Specify'
                                ' base position to start analysis.')
     parent_parser.add_argument('--to_bp',default=None,type=int,help='Specify'
