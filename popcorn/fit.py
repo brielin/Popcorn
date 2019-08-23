@@ -114,7 +114,7 @@ class fit_h(object):
     def __call__(self,data,args):
         W = 1.0/np.maximum(data['score'],np.ones(data['score'].shape))
         if args.no_intercept:
-            if args.use_regression:
+            if not args.use_mle:
                 f = None
                 Y = (data['Z']**2)
                 X = data['score']*(data['N']/self.M)
@@ -132,7 +132,7 @@ class fit_h(object):
                 sy = self.estimate_sy(data,h.x,data.shape[0])
                 h.x = [1.0,h.x]
         else:
-            if args.use_regression:
+            if not args.use_mle:
                 f = None
                 Y = (data['Z']**2)
                 X = data['score']*(data['N']/self.M)
@@ -279,7 +279,7 @@ class fit_pg(fit_h):
             L1=data['score']
             L2=data['score']
             LX=data['score']
-        if args.use_regression:
+        if not args.use_mle:
             Y = data['Z1']*data['Z2']
             X = LX*np.sqrt(data['N1']*data['N2'])/(self.M)
             if not args.no_intercept:

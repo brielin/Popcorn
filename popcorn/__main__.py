@@ -29,9 +29,9 @@ class Logger(object):
         #you might want to specify some extra behavior here.
         pass
 
-__version__='0.9.9'
+__version__='1.0'
 header='Popcorn version '+__version__+'\n'\
-'(C) 2015-2018 Brielin C Brown\n'\
+'(C) 2015-2019 Brielin C Brown\n'\
 'University of California, Berkeley\n'\
 'GNU General Public License v3\n'
 
@@ -137,8 +137,9 @@ def main(args=None):
                             help='Fixes intercept of heritability to be 1.0.')
     parser_fit.add_argument('--plot_likelihood', default=False, action='store_true',
                             help='Plot the likehood as a function of the parameter.')
-    parser_fit.add_argument('--use_regression', default=False, action='store_true',
-                            help=argparse.SUPPRESS)
+    parser_fit.add_argument('--use_mle', default=False, action='store_true', heplp='Use'
+                            ' original MLE estimator instead of more stable but higher'
+                            ' variance regression estimator.')
     args = parser.parse_args()
 
     # Set up logger to print to log file and std out

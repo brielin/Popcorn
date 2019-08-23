@@ -65,13 +65,17 @@ case of genetic correlation the p-value reported is for a test that the genetic 
 is *less than 1.0*: P(pg < 1.0).
 
 # Analysis considerations and notable options
+As of version 1.0, the hidden `--use_regression` option has been replaced with a visible `--use_mle` option, which defaults to `False`. After extensive post-publication testing and discussion with users, we have determined that the ML estimator can be too unstable and have replaced it with a regression based fit method. This is now the default. To try with the MLE instead pass the `--use_mle` flag. We believe that regression is the appropriate method for most phenotpes.
+
+If you have a binary phenotype and only know the number of cases and controls, you should supply `N = N_cases + N_controls` in the summary statistics file. The convestion to the liability scale (ie options `--K1`, `--K2`, `--P1`, `--P2`)will account for the imbalance between cases and controls in the study. 
+
 Preprocessing of data summary statistics is not supported by Popcorn and must be done prior to analysis, however basic input checking is performed. Popcorn can filter on MAF and will attempt to align any mismatched alleles between the summary statistics and score files. Any other input filtering should be done prior to analysis. One example of this is the MHC regrion on Chromosome 6. If you do not filter the MHC before computing scores you might need to increase the number of SNPs in memory with the flag `--SNPs_to_store` from the default of 10000 to 20000 or more, depending on the density of your reference panel.
 
 Another consideration is whether to compute the genetic effect correlation or the genetic impact correlation. We generally believe genetic effect is a more realistic model, but most within population analyses use a quantity close to genetic impact. To use genetic effect, pass `--gen_effect` when computing scores and fitting the model. Note that in our analysis we used a conservative MAF threshold of 0.05. We suggesting using at least 0.01. The larger the cutoff, the closer the genetic effect and genetic impact results will be.
 
 In our analysis, we always tested the hypothesis that the genetic correlation was < 1.0 and the p-value reported is for that hypothesis. In other situations you might want to test that the genetic correlation is > 0.0.
 
-Finally, please note that while this method can compute heritability and single population genetic correlation, the method it uses is not the same as LD score regression. The heritability and single popualtion genetic correlation estimates may differ, sometimes substantially, from the results LDscore reports, but generally the 95% confidence intervals for the parameter estimates should overlap. If you get wildly different results with the two programs, please contact us.
+Finally, please note that while this method can compute heritability and single population genetic correlation, the method it uses is not the same as LD score regression. The heritability and single popualtion genetic correlation estimates may differ, sometimes substantially, from the results LDscore reports, but generally the 95% confidence intervals for the parameter estimates should overlap. If you get wildly different results with the two programs, please contact us. The regression based model should give closer results to LDSR than the MLE model.
 
 # Dependences:  
 Popcorn was developed using the following external python libraries.
