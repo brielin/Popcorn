@@ -137,7 +137,7 @@ def main(args=None):
                             help='Fixes intercept of heritability to be 1.0.')
     parser_fit.add_argument('--plot_likelihood', default=False, action='store_true',
                             help='Plot the likehood as a function of the parameter.')
-    parser_fit.add_argument('--use_mle', default=False, action='store_true', heplp='Use'
+    parser_fit.add_argument('--use_mle', default=False, action='store_true', help='Use'
                             ' original MLE estimator instead of more stable but higher'
                             ' variance regression estimator.')
     args = parser.parse_args()
