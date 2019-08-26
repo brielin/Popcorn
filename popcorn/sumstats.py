@@ -7,7 +7,6 @@ import sys
 import argparse
 import warnings
 from time import time
-# from IPython import embed
 
 compliment = {'A':'T','T':'A','G':'C','C':'G',
               'a':'t','t':'a','g':'c','c':'g',
@@ -174,8 +173,6 @@ class sumstats_2_trait(sumstats_1_trait):
         t=time()
         data1, id_type1 = self.parse_input(args.sfile1)
         data2, id_type2 = self.parse_input(args.sfile2)
-#        from IPython import embed
-#        embed()
         data1 = data1.loc[~data1.index.duplicated()]
         data2 = data2.loc[~data2.index.duplicated()]
         try:
