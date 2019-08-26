@@ -107,6 +107,10 @@ class sumstats_1_trait(object):
         has_comp = data[['a1', 'a2']].applymap(lambda x: x in compliment)
         valid_alleles = np.logical_and(has_comp['a1'], has_comp['a2'])
         data=data.loc[valid_alleles]
+        data.replace([np.inf, -np.inf], np.nan, inplace=True)
+        data.dropna(subset=['id', 'a1', 'a2', 'N', 'beta', 'SE', 'Z'], inplace=True)
+        print(np.isnan(data['Z']).sum())
+        print(data['Z'].describe())
         # else:
         #     data = pd.read_table(sfile,sep='\t',header=None,
         #                          names=['chr','id','pos','af','a1','a2',
@@ -170,6 +174,8 @@ class sumstats_2_trait(sumstats_1_trait):
         t=time()
         data1, id_type1 = self.parse_input(args.sfile1)
         data2, id_type2 = self.parse_input(args.sfile2)
+#        from IPython import embed
+#        embed()
         data1 = data1.loc[~data1.index.duplicated()]
         data2 = data2.loc[~data2.index.duplicated()]
         try:
