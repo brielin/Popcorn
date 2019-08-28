@@ -108,8 +108,6 @@ class sumstats_1_trait(object):
         data=data.loc[valid_alleles]
         data.replace([np.inf, -np.inf], np.nan, inplace=True)
         data.dropna(subset=['id', 'a1', 'a2', 'N', 'beta', 'SE', 'Z'], inplace=True)
-        print(np.isnan(data['Z']).sum())
-        print(data['Z'].describe())
         # else:
         #     data = pd.read_table(sfile,sep='\t',header=None,
         #                          names=['chr','id','pos','af','a1','a2',
