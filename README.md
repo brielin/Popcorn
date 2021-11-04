@@ -9,6 +9,11 @@ these roughly correspond to the similarity of the LD at each SNP across the popu
 2. Fit mode: fitting the heritability and transethnic genetic correlation of
 a pair of summary statistics files to the scores
 
+# NOTE
+Popcorn was written in Python 2.7 and Python 3+ is not supported. Please note this software was written in 2015, and I am not currently working on any projects using this tool for analysis. Thus, I do not anticipate additional development of this package in the near future. If you would like to or have ported this code to Python3, or you have generally found/fixed bugs, I am always happy to review a pull request. I do try to respond to emails or issues on here, but please note all maintence of this package happens in my spare time therefore I may be (sometimes very) slow to respond.
+
+
+
 # Installation
 Popcorn can be installed with setuptools or it can be run by executing the main. To install with setuptools
 
@@ -115,7 +120,7 @@ Analysis finished at DATE
 ~~~
 
 Then run   
-`python -m Popcorn fit -v 1 --cfile Popcorn/test/EUR_EAS_test_ge.cscore --gen_effect --sfile1 Popcorn/test/EUR_test.txt --sfile2 Popcorn/test/EAS_test.txt Popcorn/test/EAS_EUR_test_ge_result.txt`   
+`python -m Popcorn fit -v 1 --use_mle --cfile Popcorn/test/EUR_EAS_test_ge.cscore --gen_effect --sfile1 Popcorn/test/EUR_test.txt --sfile2 Popcorn/test/EAS_test.txt Popcorn/test/EAS_EUR_test_ge_result.txt`   
 The screen should show
 ~~~   
 Popcorn version 0.9.6
@@ -143,7 +148,5 @@ pge    0.302372  0.053021  13.157553      0
 Analysis finished at DATE
 Total time elapsed: T
 ~~~
-
-Do not hesitate to contact me with questions as this is early stage software!
 
 For more details of the method please see: http://biorxiv.org/content/early/2016/02/23/036657 or http://www.cell.com/ajhg/abstract/S0002-9297(16)30135-5
