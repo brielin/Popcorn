@@ -10,7 +10,7 @@ these roughly correspond to the similarity of the LD at each SNP across the popu
 a pair of summary statistics files to the scores
 
 # NOTE
-Popcorn was written in Python 2.7 and Python 3+ is not supported. Please note this software was written in 2015, and I am not currently working on any projects using this tool for analysis. Thus, I do not anticipate additional development of this package in the near future. If you would like to or have ported this code to Python3, or you have generally found/fixed bugs, I am always happy to review a pull request. I do try to respond to emails or issues on here, but please note all maintence of this package happens in my spare time therefore I may be (sometimes very) slow to respond.
+Popcorn was written in Python 2.7. This repo is the version of Python 3+ . Please note this software was written in 2015, and I am not currently working on any projects using this tool for analysis. Thus, I do not anticipate additional development of this package in the near future. If you would like to or have ported this code to Python3, or you have generally found/fixed bugs, I am always happy to review a pull request. I do try to respond to emails or issues on here, but please note all maintence of this package happens in my spare time therefore I may be (sometimes very) slow to respond.
 
 
 
