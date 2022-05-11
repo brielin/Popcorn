@@ -1,7 +1,7 @@
 Popcorn
 ======
 
-Popcorn is a program for estimaing the correlation of causal variant effect
+Popcorn is a program for estimaing the correlation of causal variant effect. This is the python3 version of Popcorn and still under development
 sizes across populations in GWAS. Estimation involves two steps:
 
 1. Compute mode: computing cross-population scores from a reference panel,
