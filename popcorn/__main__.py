@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 from __future__ import division
 from __future__ import print_function
-import fit
-import compute
-import sumstats
+from popcorn import fit
+from popcorn import compute
+from popcorn import sumstats
 import numpy as np
 import pandas as pd
 import time
