@@ -1,5 +1,3 @@
-from __future__ import division
-from __future__ import print_function
 import numpy as np
 import pandas as pd
 import bottleneck as bn
@@ -63,7 +61,8 @@ class covariance_scores_1_pop(object):
             print(len(snps_to_use),"SNPs remaining after extraction")
         bed_1_index = np.sort(bed_1.sid_to_index(snps_to_use)) #
         pos = bed_1.pos[bed_1_index] #
-        bim_1=pd.read_table(bed_1.filename+'.bim',header=None,
+        bim1_filename = bed_1.filename
+        bim_1 = pd.read_table(bim1_filename.replace('.bed','')+'.bim',header=None,
                             names=['chm','id','pos_mb','pos_bp','a1','a2'])
         af = af1[bed_1_index] #
         # if args.afile is not None:
@@ -95,12 +94,12 @@ class covariance_scores_1_pop(object):
         wl = []
         wr = []
         j=0
-        for i in xrange(self.M):
+        for i in range(self.M):
             while j<self.M and abs(coords[j]-coords[i])>ws:
                 j+=1
             wl.append(j)
         j=0
-        for i in xrange(self.M):
+        for i in range(self.M):
             while j<self.M and wl[j] <= i:
                 j += 1
             wr.append(j)
@@ -120,7 +119,7 @@ class covariance_scores_1_pop(object):
             af[k0:k1] = bn.nanmean(X,0)/2.0
             var[k0:k1] = self._fast_var(X,2*af[k0:k1])
         else:
-            for i in xrange(int(np.ceil(bed.sid_count/s))):
+            for i in range(int(np.ceil(bed.sid_count/s))):
                 X = bed[:,i*s:(i+1)*s].read().val
                 af[i*s:(i+1)*s] = bn.nanmean(X,0)/2.0
                 var[i*s:(i+1)*s] = self._fast_var(X,2*af[i*s:(i+1)*s])
@@ -181,14 +180,14 @@ class covariance_scores_1_pop(object):
         #nstr = ri-li
         offset = 0
         #out1 = np.zeros((1,nstr-1))
-        for i in xrange(ri,self.M,nstr):
+        for i in range(ri,self.M,nstr):
             sys.stdout.write("SNP: %d, %f\r" % (i, time()-t))
             sys.stdout.flush()
             X1n= self._norm_data(bed_1[:,bed_1_index[i:(i+nstr)]].read().val)
             A1 = np.hstack((A1,X1n))
             # if a1 is not None:
             #     A1 = self._condition_ancestry(A1,a1['theta'].values)
-            for j in xrange(i,np.min((i+nstr,self.M))):
+            for j in range(i,np.min((i+nstr,self.M))):
                 lb,rb = self.windows[j]
                 lbp = lb-offset
                 jp = j-offset
@@ -224,9 +223,11 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
         bed_1 = Bed(args.bfile1,count_A1=False) #
         bed_2 = Bed(args.bfile2,count_A1=False)
         # Get indel locations, if any
-        bim_1=pd.read_table(bed_1.filename+'.bim',header=None,
+        bim1_filename = bed_1.filename
+        bim2_filename = bed_2.filename
+        bim_1=pd.read_table(bim1_filename.replace('.bed','')+'.bim',header=None,
                             names=['chm','id','pos_mb','pos_bp','a1','a2'])
-        bim_2=pd.read_table(bed_2.filename+'.bim',header=None,
+        bim_2=pd.read_table(bim2_filename.replace('.bed','')+'.bim',header=None,
                             names=['chm','id','pos_mb','pos_bp','a1','a2'])
         is_indel_1 = np.array([(len(str(a1))>1)|(len(str(a2))>1)  for a1,a2 in bim_1[['a1','a2']].values])
         is_indel_2 = np.array([(len(str(a1))>1)|(len(str(a2))>1)  for a1,a2 in bim_2[['a1','a2']].values])
@@ -339,14 +340,16 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
         bed_2_index = np.sort(bed_2_index)
         af1 = af1[bed_1_index]
         af2 = af2[bed_2_index]
-        bim_1=pd.read_table(bed_1.filename+'.bim',header=None,
+        bim1_filename = bed_1.filename
+        bim_1=pd.read_table(bim1_filename.replace('.bed','')+'.bim',header=None,
                             names=['chm','id','pos_mb','pos_bp','a1','a2'])
         bim_1=bim_1.iloc[bed_1_index]
-        bim_1.index = xrange(len(bed_1_index))
-        bim_2=pd.read_table(bed_2.filename+'.bim',header=None,
+        bim_1.index = range(len(bed_1_index))
+        bim2_filename = bed_2.filename
+        bim_2=pd.read_table(bim2_filename.replace('.bed','')+'.bim',header=None,
                             names=['chm','id','pos_mb','pos_bp','a1','a2'])
         bim_2=bim_2.iloc[bed_2_index]
-        bim_2.index = xrange(len(bed_2_index))
+        bim_2.index = range(len(bed_2_index))
         a11c = []
         a12c = []
         a21c = []
@@ -363,7 +366,7 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
                 a12c.append('N')
                 a21c.append('N')
                 a22c.append('N')
-        non_snp = (np.array(a11c,dtype='string') == 'N')
+        non_snp = (np.array(a11c,dtype='str') == 'N')
         bim_1['a1c'] = a11c
         bim_1['a2c'] = a12c
         bim_2['a1c'] = a21c
@@ -457,7 +460,7 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
         offset = 0
         #out1 = np.zeros((1,nstr-1))
         #out2 = np.zeros((1,nstr-1))
-        for i in xrange(ri,self.M,nstr):
+        for i in range(ri,self.M,nstr):
             sys.stdout.write("SNP: %d, %f\r" % (i,time()-t))
             sys.stdout.flush()
             X1n= bed_1[:,bed_1_index[i:(i+nstr)]].read().standardize(Unit()).val
@@ -468,7 +471,7 @@ class covariance_scores_2_pop(covariance_scores_1_pop):
             #     A1 = self._condition_ancestry(A1,a1['theta'].values)
             # if a2 is not None:
             #     A2 = self._condition_ancestry(A2,a2['theta'].values)
-            for j in xrange(i,np.min((i+nstr,self.M))):
+            for j in range(i,np.min((i+nstr,self.M))):
                 lb,rb = self.windows[j]
                 lbp = lb-offset
                 jp = j-offset

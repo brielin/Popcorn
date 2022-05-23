@@ -1,5 +1,3 @@
-from __future__ import division
-from __future__ import print_function
 import numpy as np
 import pandas as pd
 import sys
@@ -11,7 +9,7 @@ from scipy import optimize, stats
 # from IPython import embed
 from time import time
 from collections import namedtuple
-import jackknife
+from popcorn import jackknife
 
 class fit_by_region(object):
     def __init__(self,data,args,t,M):

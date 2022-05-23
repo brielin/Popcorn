@@ -1,5 +1,3 @@
-from __future__ import division
-from __future__ import print_function
 import numpy as np
 import pandas as pd
 import time
@@ -28,10 +26,10 @@ class jackknife(object):
         bs0=200
         nb0 = 200
         minb = 10
-        nblocks = np.min((np.max((minb,N/bs0)),nb0))
+        nblocks = np.min((np.max((minb,N/bs0)),nb0)).astype(int)
         bs = int(N/nblocks)
         A = np.floor(np.linspace(0,N,nblocks+1)).astype(int)
-        return zip(A[:-1],A[1:]), bs
+        return list(zip(A[:-1],A[1:])), bs
 
     def jackknife(self,f,x,r):
         psa = []

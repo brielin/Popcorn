@@ -1,0 +1,9 @@
+*.log
+build
+dist
+popcorn.egg-info
+popcorn/__pycache__
+*.out
+*.cscore
+
+

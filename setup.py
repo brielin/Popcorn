@@ -1,5 +1,5 @@
 import os
-from setuptools import setup
+from setuptools import setup,find_packages
 
 HERE = os.path.dirname(__file__)
 version_file = open(os.path.join(HERE,'popcorn','VERSION'))
@@ -19,7 +19,7 @@ setup(
     name='popcorn',
     version=version,
     install_requires=install_requires,
-    requires=['python (>=2.7, <3.0)'],
+    requires=['python (>=3.0)'],
     packages=['popcorn'],
     author='Brielin Brown',
     description='A tool for estimating transethnic genetic correlation',
