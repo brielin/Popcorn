@@ -6,11 +6,13 @@ sizes across populations in GWAS. Estimation involves two steps:
 
 1. Compute mode: computing cross-population scores from a reference panel,
 these roughly correspond to the similarity of the LD at each SNP across the populations
-2. Fit mode: fitting the heritability and transethnic genetic correlation of
+2. Fit mode: fitting the heritability and cross-population genetic correlation of
 a pair of summary statistics files to the scores
 
 # NOTE
-Popcorn was written in Python 2.7. This repo is the version of Python 3+ . Please note this software was written in 2015, and I am not currently working on any projects using this tool for analysis. Thus, I do not anticipate additional development of this package in the near future. If you would like to or have ported this code to Python3, or you have generally found/fixed bugs, I am always happy to review a pull request. I do try to respond to emails or issues on here, but please note all maintence of this package happens in my spare time therefore I may be (sometimes very) slow to respond.
+Popcorn was written in Python 2.7 in 2015. It was ported to Python 3(.7) in May 2022 by shafayetrahat (THANKS!!!). If you run into trouble with the new Python 3 version please contact us or raise an issue here.
+
+Please note that I am not currently working on any projects using this tool for analysis and am generally very busy with many other active projects. I do not anticipate additional development of this package in the near future. If you have found/fixed bugs, I am always happy to review a pull request. I do try to respond to emails or issues on here, but please note all maintence of this package happens in my spare time therefore I may be (sometimes very) slow to respond.
 
 
 
