@@ -19,7 +19,7 @@ setup(
     name='popcorn',
     version=version,
     install_requires=install_requires,
-    requires=['python (>=3.0)'],
+    requires=['python (>=3.7)'],
     packages=['popcorn'],
     author='Brielin Brown',
     description='A tool for estimating transethnic genetic correlation',
