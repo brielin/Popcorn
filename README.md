@@ -14,14 +14,12 @@ Popcorn was written in Python 2.7 in 2015. It was ported to Python 3(.7) in May 
 
 Please note that I am not currently working on any projects using this tool for analysis and am generally very busy with many other active projects. I do not anticipate additional development of this package in the near future. If you have found/fixed bugs, I am always happy to review a pull request. I do try to respond to emails or issues on here, but please note all maintence of this package happens in my spare time therefore I may be (sometimes very) slow to respond.
 
-
-
 # Installation
-Popcorn can be installed with setuptools or it can be run by executing the main. To install with setuptools
+Popcorn can be installed with pip or it can be run by executing the main. To install into the local environment with pip:
 
 ```
 cd Popcorn
-python setup.py install
+pip install .
 ```
 
 and all of the requirements will be installed automatically. In this case you can then run popcorn
