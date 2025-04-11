@@ -227,7 +227,7 @@ class fit_pg(fit_h):
 
         h1r = self.h1_res.h_res.x[1]
         h2r = self.h2_res.h_res.x[1]
-        if (h1r < 0) or (h2r < 0):
+        if (h1r <= 0) or (h2r <= 0):
             raise ValueError("Estimated heritability is negative. This will cause" \
                              " any rg estimates to be NaN. Please double check the formatting"\
                              " of your score and sumstats files and verify the heritability with"\

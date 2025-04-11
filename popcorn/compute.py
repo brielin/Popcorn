@@ -198,9 +198,9 @@ class covariance_scores_1_pop(object):
                 try:
                     scores[lb:j] += func_ret[1]
                 except ValueError:
-                    print("Error when setting scores."
-                          " Block width may exceed number of SNPs being stored"
-                          " Try increasing --SNPs_to_store")
+                    raise ValueError("Error when setting scores."\
+                          " Block width may exceed number of SNPs being stored"\
+                          " Try increasing --SNPs_to_store"\)
                 scores[j] += func_ret[0]
             if A1.shape[1] > args.SNPs_to_store:
                 A1 = A1[:,nstr:]
