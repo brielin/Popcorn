@@ -45,7 +45,7 @@ class sumstats_1_trait(object):
                         "compliment SNPs.")
 
     def parse_input(self, sfile):
-        print('Parse', sfile, '...')
+        print('Parsing', sfile, '...')
         DF = pd.read_table(sfile)
         data = pd.DataFrame()
         try:
@@ -106,7 +106,7 @@ class sumstats_1_trait(object):
                         'Must provide either signed Z-scores 1) "Z", 2) "beta" and "SE",'
                         ' or 3) "OR" and "p-value"')
         data.index = data['id']
-        has_comp = data[['a1', 'a2']].applymap(lambda x: x in compliment)
+        has_comp = data[['a1', 'a2']].map(lambda x: x in compliment)
         valid_alleles = np.logical_and(has_comp['a1'], has_comp['a2'])
         data=data.loc[valid_alleles]
         data.replace([np.inf, -np.inf], np.nan, inplace=True)
@@ -193,7 +193,7 @@ class sumstats_2_trait(sumstats_1_trait):
         data2 = data2.loc[comm_snps]
         scores = scores.loc[comm_snps]
         try:
-            if not data1['a1'][0].isupper():
+            if not data1['a1'].iloc[0].isupper():
                 data1['a1'] = map(lambda x: x.upper(), data1['a1'])
                 data1['a2'] = map(lambda x: x.upper(), data1['a2'])
                 data2['a1'] = map(lambda x: x.upper(), data2['a1'])

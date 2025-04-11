@@ -13,8 +13,11 @@ import traceback
 
 
 class Logger(object):
-    def __init__(self,fname):
-        self.terminal = sys.stdout
+    def __init__(self, fname, pipe):
+        if pipe == "out":
+            self.terminal = sys.stdout
+        elif pipe == "err":
+            self.terminal = sys.stdout
         self.log = open(fname+".log", "a")
 
     def write(self, message):
@@ -27,9 +30,9 @@ class Logger(object):
         #you might want to specify some extra behavior here.
         pass
 
-__version__='1.0'
+__version__='1.1'
 header='Popcorn version '+__version__+'\n'\
-'(C) 2015-2019 Brielin C Brown\n'\
+'(C) 2015-2025 Brielin C Brown\n'\
 'University of California, Berkeley\n'\
 'GNU General Public License v3\n'
 
@@ -146,8 +149,8 @@ def main(args=None):
     # logger.addHandler(logging.FileHandler(args.out+'.log'))
     # print = logger.info
 
-    sys.stdout = Logger(args.out+'.o')
-    sys.stderr = Logger(args.out+'.e')
+    sys.stdout = Logger(args.out+'.o', 'out')
+    sys.stderr = Logger(args.out+'.e', 'err')
     print(header)
     print('Invoking command: python '+' '.join(sys.argv))
     print('Beginning analysis at {T}'.format(T=time.ctime()))

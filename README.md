@@ -32,6 +32,10 @@ execute the main directly with `python Popcorn/popcorn/__main__.py {compute, fit
 
 Please see the examples below and the argument documentations for details.
 
+## Singularity container
+User ofrei created a singularity container with the installation requirements installed. See <https://github.com/comorment/popcorn> for more details.
+
+
 # File formats and usage information
 For computing scores, reference genotypes in plink binary (BED) format are required. See <http://www.cog-genomics.org/plink/1.9/input#bed> for more information on that format. PLINK2 can also be used for converting reference genomes in VCF format to BED format. The basic command to compute scores for two populations is
 
@@ -97,8 +101,8 @@ statsmodels 0.8.0
 
 # Test files:   
 Popcorn comes with several files in the test directory to verify output. If you want
-to make sure you have the software working correctly, run   
-`python -m Popcorn compute -v 2 --bfile1 Popcorn/test/EUR_ref --bfile2 Popcorn/test/EAS_ref --gen_effect Popcorn/test/EUR_EAS_test_ge.cscore`   
+to make sure you have the software working correctly, `cd` to the `test` directory   
+`python -m Popcorn compute -v 2 --bfile1 EUR_ref --bfile2 EAS_ref --gen_effect EUR_EAS_test_ge.cscore`   
 The screen should show   
 ~~~
 Popcorn version 0.9.6
@@ -106,7 +110,7 @@ Popcorn version 0.9.6
 University of California, Berkeley
 GNU General Public License v3
 
-Invoking command: python /home/brielin/CoHeritability/Popcorn/__main__.py compute -v 2 --bfile1 Popcorn/test/EUR_ref --bfile2 Popcorn/test/EAS_ref Popcorn/test/EUR_EAS_test.cscore
+Invoking command: python /path/to/__main__.py compute -v 2 --bfile1 EUR_ref --bfile2 EAS_ref EUR_EAS_test.cscore
 Beginning analysis at DATE
 50000 SNPs in file 1
 50000 SNPs in file 2
@@ -120,7 +124,7 @@ Analysis finished at DATE
 ~~~
 
 Then run   
-`python -m Popcorn fit -v 1 --use_mle --cfile Popcorn/test/EUR_EAS_test_ge.cscore --gen_effect --sfile1 Popcorn/test/EUR_test.txt --sfile2 Popcorn/test/EAS_test.txt Popcorn/test/EAS_EUR_test_ge_result.txt`   
+`python -m Popcorn fit -v 1 --use_mle --cfile EUR_EAS_test_ge.cscore --gen_effect --sfile1 EUR_test.txt --sfile2 EAS_test.txt EAS_EUR_test_ge_result.txt`   
 The screen should show
 ~~~   
 Popcorn version 0.9.6

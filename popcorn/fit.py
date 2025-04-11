@@ -5,6 +5,7 @@ import argparse
 import logging
 import traceback
 import statsmodels.api as sm
+import warnings
 from scipy import optimize, stats
 # from IPython import embed
 from time import time
@@ -167,25 +168,32 @@ class fit_h(object):
         return np.sum(B**2/A)/M
 
     def nll(self,x,Z,N,M,score,W=None):
-        c,h = x
-        S = (c + (N/M)*h*score)
-#        S = (1 + (N/M)*x*score)
-        if W is None:
-            l = -0.5*M*np.log(2*np.pi) - 0.5*np.sum(np.log(S))\
-                - 0.5*np.sum(Z**2/S)
-        else:
-            l = -0.5*M*np.log(2*np.pi) - 0.5*np.sum(W*np.log(S))\
-                - 0.5*np.sum(W*(Z**2/S))
+        with warnings.catch_warnings(record = True) as w:
+            c,h = x
+            S = (c + (N/M)*h*score)
+            try:
+                if W is None:
+                    l = -0.5*M*np.log(2*np.pi) - 0.5*np.sum(np.log(S))\
+                        - 0.5*np.sum(Z**2/S)
+                else:
+                    l = -0.5*M*np.log(2*np.pi) - 0.5*np.sum(W*np.log(S))\
+                        - 0.5*np.sum(W*(Z**2/S))
+            except RuntimeWarning:
+                l = np.nan
         return -1.0*l
 
     def nll_no_intercept(self,x,Z,N,M,score,W=None):
-        S = (1 + (N/M)*x*score)
-        if W is None:
-            l = -0.5*M*np.log(2*np.pi) - 0.5*np.sum(np.log(S))\
-                - 0.5*np.sum(Z**2/S)
-        else:
-            l = -0.5*M*np.log(2*np.pi) - 0.5*np.sum(W*np.log(S))\
-                - 0.5*np.sum(W*(Z**2/S))
+        with warnings.catch_warnings(record = True) as w:
+            S = (1 + (N/M)*x*score)
+            try:
+                if W is None:
+                    l = -0.5*M*np.log(2*np.pi) - 0.5*np.sum(np.log(S))\
+                        - 0.5*np.sum(Z**2/S)
+                else:
+                    l = -0.5*M*np.log(2*np.pi) - 0.5*np.sum(W*np.log(S))\
+                        - 0.5*np.sum(W*(Z**2/S))
+            except RuntimeWarning:
+                l = np.nan
         return -1.0*l
 
     def write(self,outfile):
@@ -219,6 +227,12 @@ class fit_pg(fit_h):
 
         h1r = self.h1_res.h_res.x[1]
         h2r = self.h2_res.h_res.x[1]
+        if (h1r < 0) or (h2r < 0):
+            raise ValueError("Estimated heritability is negative. This will cause" \
+                             " any rg estimates to be NaN. Please double check the formatting"\
+                             " of your score and sumstats files and verify the heritability with"\
+                             " another tool such as LDSC. Exiting.")
+
         pgr = self.pg_res.x
         hgr = pgr*np.sqrt(h1r*h2r)
         res = np.array([h1r, self.sy1, h2r, self.sy2, hgr, pgr])
@@ -246,7 +260,7 @@ class fit_pg(fit_h):
                 &(args.K2 is not None)&(args.P2 is not None):
             self.convert_to_liability(args.K1,args.P1,args.K2,args.P2)
         self.res['Z'] = (self.res['Val (obs)'])/self.res['SE']
-        self.res['Z']['pg'] = (1.0-self.res['Val (obs)']['pg'])/self.res['SE']['pg']
+        self.res.loc['pg', 'Z'] = (1.0-self.res.loc['pg', 'Val (obs)'])/self.res.loc['pg', 'SE']
         self.res['P (Z)'] = 1-stats.chi2.cdf(self.res['Z']**2,1)
         if args.gen_effect:
             self.res.index=['h1^2','sy1','h2^2','sy2','hge','pge']
@@ -309,20 +323,24 @@ class fit_pg(fit_h):
         return h1, sy1, h2, sy2, pg, f
 
     def nll(self,pg,h1,h2,Z1,Z2,L1,L2,LX,N1,N2,M,W=None):
-        Z = np.vstack((Z1,Z2)).T
-        Z = Z.reshape((len(Z),2,1))
-        S11 = 1 + (N1/M)*h1*L1
-        S22 = 1 + (N2/M)*h2*L2
-        sg = pg*np.sqrt(h1*h2)
-        S12 = (np.sqrt(N1*N2)/M)*sg*LX
-        S = np.dstack((np.vstack((S11,S12)).T,np.vstack((S12,S22)).T))
-        logD = np.linalg.slogdet(S)[1]
-        SIZ = np.linalg.solve(S,Z)
-        ZTSIZ = np.sum(Z*SIZ,axis=(1,2))
-        if W is None:
-            l = np.sum(-0.5*logD - 0.5*ZTSIZ) - M*np.log(2*np.pi)
-        else:
-            l = np.sum(W*(-0.5*logD - 0.5*ZTSIZ)) - M*np.log(2*np.pi)
+        with warnings.catch_warnings(record = True) as w:
+            Z = np.vstack((Z1,Z2)).T
+            Z = Z.reshape((len(Z),2,1))
+            S11 = 1 + (N1/M)*h1*L1
+            S22 = 1 + (N2/M)*h2*L2
+            sg = pg*np.sqrt(h1*h2)
+            S12 = (np.sqrt(N1*N2)/M)*sg*LX
+            S = np.dstack((np.vstack((S11,S12)).T,np.vstack((S12,S22)).T))
+            try:
+                logD = np.linalg.slogdet(S)[1]
+                SIZ = np.linalg.solve(S,Z)
+                ZTSIZ = np.sum(Z*SIZ,axis=(1,2))
+                if W is None:
+                    l = np.sum(-0.5*logD - 0.5*ZTSIZ) - M*np.log(2*np.pi)
+                else:
+                    l = np.sum(W*(-0.5*logD - 0.5*ZTSIZ)) - M*np.log(2*np.pi)
+            except RuntimeWarning:
+                l = np.nan
         return -1.0*l
 
     def convert_to_liability(self,K1,P1,K2,P2):
@@ -411,17 +429,21 @@ class fit_pg_pe(fit_pg):
         return 0.01,0.01
 
     def nll(self,x,h1,h2,Z1,Z2,L,N1,N2,Ns,M):
-        pg,pe = x
-        hg = pg*np.sqrt(h1*h2)
-        he = pe*np.sqrt((1-h1)*(1-h2))
-        Z = np.vstack((Z1,Z2)).T
-        Z = Z.reshape((len(Z),2,1))
-        S11 = 1 + (N1/M)*h1*L
-        S22 = 1 + (N2/M)*h2*L
-        S12 = (Ns/np.sqrt(N1*N2))*(he+hg) + (np.sqrt(N1*N2)/M)*hg*L
-        S = np.dstack((np.vstack((S11,S12)).T,np.vstack((S12,S22)).T))
-        logD = np.linalg.slogdet(S)[1]
-        SIZ = np.linalg.solve(S,Z)
-        ZTSIZ = np.sum(Z*SIZ,axis=(1,2))
-        l = np.sum(-0.5*logD - 0.5*ZTSIZ) - M*np.log(2*np.pi)
+        with warnings.catch_warnings(record = True) as w:
+            pg,pe = x
+            hg = pg*np.sqrt(h1*h2)
+            he = pe*np.sqrt((1-h1)*(1-h2))
+            Z = np.vstack((Z1,Z2)).T
+            Z = Z.reshape((len(Z),2,1))
+            S11 = 1 + (N1/M)*h1*L
+            S22 = 1 + (N2/M)*h2*L
+            S12 = (Ns/np.sqrt(N1*N2))*(he+hg) + (np.sqrt(N1*N2)/M)*hg*L
+            S = np.dstack((np.vstack((S11,S12)).T,np.vstack((S12,S22)).T))
+            try:
+                logD = np.linalg.slogdet(S)[1]
+                SIZ = np.linalg.solve(S,Z)
+                ZTSIZ = np.sum(Z*SIZ,axis=(1,2))
+                l = np.sum(-0.5*logD - 0.5*ZTSIZ) - M*np.log(2*np.pi)
+            except RuntimeWarning:
+                l = np.nan
         return -1.0*l
